@@ -1,0 +1,49 @@
+<div class="max-w-lg mx-auto text-center py-12">
+  <div class="text-6xl mb-6">✅</div>
+  <h2 class="text-3xl font-bold text-gray-900 mb-3">Booking Requested!</h2>
+  <p class="text-gray-500 mb-8">
+    We've received your appointment request. Our team will confirm
+    your slot and send a confirmation to
+    <span class="font-medium text-gray-800"><%= @appointment.guest_email %></span>.
+  </p>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 text-left mb-8">
+    <h3 class="font-semibold text-gray-900 mb-4">Booking Summary</h3>
+
+    <div class="space-y-3 text-sm">
+      <div class="flex justify-between">
+        <span class="text-gray-500">Service</span>
+        <span class="font-medium text-gray-900"><%= @appointment.service.name %></span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Vehicle</span>
+        <span class="font-medium text-gray-900"><%= @appointment.vehicle_display %></span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Requested Time</span>
+        <span class="font-medium text-gray-900">
+          <%= @appointment.scheduled_at.strftime("%B %d, %Y at %l:%M %p") %>
+        </span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-500">Status</span>
+        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+          Pending Confirmation
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8 text-left">
+    <p class="text-sm text-blue-800 font-medium mb-1">🔒 Save this page</p>
+    <p class="text-xs text-blue-600">
+      Bookmark this URL to check your appointment status without an account.
+      Or <%= link_to "create a free account", new_user_registration_path,
+                class: "underline font-medium" %> to manage all your bookings in one place.
+    </p>
+  </div>
+
+  <%= link_to "Book Another Appointment", booking_path,
+        class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold
+                px-6 py-3 rounded-lg transition" %>
+</div>

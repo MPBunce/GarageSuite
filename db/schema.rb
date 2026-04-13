@@ -10,9 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_12_170905) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_12_231151) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "appointments", force: :cascade do |t|
+    t.bigint "customer_id"
+    t.bigint "assigned_admin_id"
+    t.bigint "vehicle_id"
+    t.bigint "service_id", null: false
+    t.datetime "scheduled_at", null: false
+    t.integer "status", default: 0, null: false
+    t.text "customer_notes"
+    t.text "admin_notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "guest_name"
+    t.string "guest_email"
+    t.string "guest_phone"
+    t.string "guest_vehicle_make"
+    t.string "guest_vehicle_model"
+    t.integer "guest_vehicle_year"
+    t.string "guest_vehicle_license"
+    t.string "guest_token"
+    t.index ["assigned_admin_id"], name: "index_appointments_on_assigned_admin_id"
+    t.index ["customer_id"], name: "index_appointments_on_customer_id"
+    t.index ["guest_email"], name: "index_appointments_on_guest_email"
+    t.index ["guest_token"], name: "index_appointments_on_guest_token", unique: true
+    t.index ["scheduled_at"], name: "index_appointments_on_scheduled_at"
+    t.index ["service_id"], name: "index_appointments_on_service_id"
+    t.index ["status"], name: "index_appointments_on_status"
+    t.index ["vehicle_id"], name: "index_appointments_on_vehicle_id"
+  end
 
   create_table "roles", force: :cascade do |t|
     t.string "name", null: false
@@ -20,6 +49,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_12_170905) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_roles_on_name", unique: true
+  end
+
+  create_table "services", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.integer "duration_minutes", null: false
+    t.decimal "price", precision: 8, scale: 2, null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_services_on_name", unique: true
   end
 
   create_table "user_roles", force: :cascade do |t|
@@ -48,6 +88,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_12_170905) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "vehicles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "make", null: false
+    t.string "model", null: false
+    t.integer "year", null: false
+    t.string "license_plate", null: false
+    t.string "vin"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["license_plate"], name: "index_vehicles_on_license_plate", unique: true
+    t.index ["user_id"], name: "index_vehicles_on_user_id"
+    t.index ["vin"], name: "index_vehicles_on_vin", unique: true, where: "(vin IS NOT NULL)"
+  end
+
+  add_foreign_key "appointments", "services"
+  add_foreign_key "appointments", "users", column: "assigned_admin_id"
+  add_foreign_key "appointments", "users", column: "customer_id"
+  add_foreign_key "appointments", "vehicles"
   add_foreign_key "user_roles", "roles"
   add_foreign_key "user_roles", "users"
+  add_foreign_key "vehicles", "users"
 end

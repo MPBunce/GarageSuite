@@ -5,11 +5,18 @@ class User < ApplicationRecord
   has_many :user_roles, dependent: :destroy
   has_many :roles, through: :user_roles
 
+  has_many :vehicles,             dependent: :destroy
+  has_many :appointments,         foreign_key: "customer_id",
+                                  dependent: :destroy
+  has_many :managed_appointments, class_name: "Appointment",
+                                  foreign_key: "assigned_admin_id",
+                                  dependent: :nullify
+
   validates :first_name, presence: true
   validates :last_name,  presence: true
   validates :phone_number, format: { with: /\A\+?[\d\s\-().]{7,20}\z/ },
                            allow_blank: true
-
+           
   before_save :downcase_email
 
   def assign_role(role_name)

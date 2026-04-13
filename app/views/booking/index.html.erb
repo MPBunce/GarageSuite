@@ -1,0 +1,412 @@
+<%# Progress Bar %>
+<div class="max-w-2xl mx-auto mb-8">
+  <div class="flex items-center justify-between">
+    <% steps = ["Service", "Vehicle", "Date & Time", "Your Details"] %>
+    <% current = (params[:step] || "service") %>
+    <% step_keys = ["service", "vehicle", "datetime", "details"] %>
+
+    <% steps.each_with_index do |label, i| %>
+      <div class="flex items-center">
+        <div class="flex flex-col items-center">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold
+            <%= step_keys.index(current).to_i >= i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' %>">
+            <%= i + 1 %>
+          </div>
+          <span class="text-xs mt-1 font-medium
+            <%= step_keys.index(current).to_i >= i ? 'text-blue-600' : 'text-gray-400' %>">
+            <%= label %>
+          </span>
+        </div>
+        <% if i < steps.length - 1 %>
+          <div class="h-0.5 w-16 mx-2 mb-4
+            <%= step_keys.index(current).to_i > i ? 'bg-blue-600' : 'bg-gray-200' %>">
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# Step Content %>
+<div class="max-w-2xl mx-auto">
+  <% step = params[:step] || "service" %>
+
+  <%# ── STEP 1: Service Selection ── %>
+  <% if step == "service" %>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Choose a Service</h2>
+      <p class="text-gray-500 text-sm mb-6">Select the service you'd like to book</p>
+
+      <%= form_tag booking_update_path, method: :post do %>
+        <input type="hidden" name="step" value="service">
+
+        <div class="space-y-3">
+          <% @services.each do |service| %>
+            <label class="flex items-center justify-between p-4 border-2 border-gray-200
+                          rounded-xl cursor-pointer hover:border-blue-400 transition
+                          has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+              <div class="flex items-center space-x-4">
+                <%= radio_button_tag :service_id, service.id,
+                      session.dig(:booking, "service_id").to_s == service.id.to_s,
+                      class: "w-4 h-4 text-blue-600" %>
+                <div>
+                  <p class="font-semibold text-gray-900"><%= service.name %></p>
+                  <p class="text-sm text-gray-500"><%= service.description %></p>
+                </div>
+              </div>
+              <div class="text-right shrink-0 ml-4">
+                <p class="font-bold text-blue-600"><%= service.formatted_price %></p>
+                <p class="text-xs text-gray-400">⏱ <%= service.formatted_duration %></p>
+              </div>
+            </label>
+          <% end %>
+        </div>
+
+        <div class="mt-8">
+          <%= submit_tag "Continue →",
+                class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold
+                        py-3 px-4 rounded-lg transition cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+
+  <%# ── STEP 2: Vehicle ── %>
+  <% elsif step == "vehicle" %>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Your Vehicle</h2>
+      <p class="text-gray-500 text-sm mb-6">Tell us about the vehicle being serviced</p>
+
+      <%= form_tag booking_update_path, method: :post do %>
+        <input type="hidden" name="step" value="vehicle">
+
+        <% if user_signed_in? && current_user.vehicles.active.any? %>
+          <p class="text-sm font-medium text-gray-700 mb-3">Select a saved vehicle:</p>
+          <div class="space-y-3 mb-6">
+            <% current_user.vehicles.active.each do |vehicle| %>
+              <label class="flex items-center space-x-4 p-4 border-2 border-gray-200
+                            rounded-xl cursor-pointer hover:border-blue-400 transition
+                            has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                <%= radio_button_tag :vehicle_id, vehicle.id, false,
+                      class: "w-4 h-4 text-blue-600" %>
+                <span class="font-medium text-gray-900"><%= vehicle.display_name %></span>
+                <span class="text-sm text-gray-400"><%= vehicle.license_plate %></span>
+              </label>
+            <% end %>
+          </div>
+          <p class="text-sm text-gray-400 text-center mb-4">— or enter a different vehicle —</p>
+        <% end %>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Make</label>
+            <input type="text" name="guest_vehicle_make" placeholder="e.g. Toyota"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+            <input type="text" name="guest_vehicle_model" placeholder="e.g. Camry"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-8">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+            <input type="number" name="guest_vehicle_year" placeholder="e.g. 2020"
+              min="1990" max="<%= Date.current.year + 1 %>"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">License Plate</label>
+            <input type="text" name="guest_vehicle_license" placeholder="e.g. ABC123"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <%= submit_tag "Continue →",
+              class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold
+                      py-3 px-4 rounded-lg transition cursor-pointer" %>
+      <% end %>
+    </div>
+
+  <%# ── STEP 3: Date & Time ── %>
+  <% elsif step == "datetime" %>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Pick a Date & Time</h2>
+      <p class="text-gray-500 text-sm mb-6">
+        Choose your preferred appointment slot
+        <span class="text-blue-600 font-medium">(All times Eastern / EST)</span>
+      </p>
+
+      <%= form_tag booking_update_path, method: :post do %>
+        <input type="hidden" name="step" value="datetime">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+          <%# Date picker %>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Preferred Date
+            </label>
+            <input type="date"
+              name="booking_date"
+              id="booking_date"
+              min="<%= Date.current.strftime('%Y-%m-%d') %>"
+              max="<%= 3.months.from_now.strftime('%Y-%m-%d') %>"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required>
+            <p class="mt-1 text-xs text-gray-400">Up to 3 months in advance</p>
+          </div>
+
+          <%# Time slot picker %>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Preferred Time <span class="text-gray-400">(EST)</span>
+            </label>
+            <select name="booking_time"
+              id="booking_time"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              required>
+              <option value="">Select a time slot...</option>
+              <optgroup label="🌅 Morning">
+                <option value="08:00">8:00 AM</option>
+                <option value="08:30">8:30 AM</option>
+                <option value="09:00">9:00 AM</option>
+                <option value="09:30">9:30 AM</option>
+                <option value="10:00">10:00 AM</option>
+                <option value="10:30">10:30 AM</option>
+                <option value="11:00">11:00 AM</option>
+                <option value="11:30">11:30 AM</option>
+              </optgroup>
+              <optgroup label="☀️ Afternoon">
+                <option value="12:00">12:00 PM</option>
+                <option value="12:30">12:30 PM</option>
+                <option value="13:00">1:00 PM</option>
+                <option value="13:30">1:30 PM</option>
+                <option value="14:00">2:00 PM</option>
+                <option value="14:30">2:30 PM</option>
+                <option value="15:00">3:00 PM</option>
+                <option value="15:30">3:30 PM</option>
+                <option value="16:00">4:00 PM</option>
+                <option value="16:30">4:30 PM</option>
+              </optgroup>
+            </select>
+            <p class="mt-1 text-xs text-gray-400">
+              30 minute slots, subject to availability
+            </p>
+          </div>
+        </div>
+
+        <%# Friendly day indicator — shown after date selected %>
+        <div id="day_indicator" class="hidden mb-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3
+                      flex items-center space-x-3">
+            <span class="text-blue-600 text-lg">📅</span>
+            <div>
+              <p class="text-sm font-medium text-blue-900" id="day_display"></p>
+              <p class="text-xs text-blue-500">Eastern Time (EST)</p>
+            </div>
+          </div>
+        </div>
+
+        <%# Weekend warning %>
+        <div id="weekend_warning" class="hidden mb-4">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3
+                      flex items-center space-x-3">
+            <span class="text-yellow-500 text-lg">⚠️</span>
+            <p class="text-sm text-yellow-800">
+              We're closed on weekends. Please select a weekday.
+            </p>
+          </div>
+        </div>
+
+        <%# Hidden combined datetime field submitted to controller %>
+        <input type="hidden" name="scheduled_at" id="scheduled_at">
+
+        <div class="mb-8">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Notes <span class="text-gray-400 font-normal">(optional)</span>
+          </label>
+          <textarea name="customer_notes" rows="3"
+            placeholder="Any specific concerns or requests..."
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none">
+          </textarea>
+        </div>
+
+        <%= submit_tag "Continue →",
+              id: "datetime_submit",
+              class: "w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300
+                      disabled:cursor-not-allowed text-white font-semibold
+                      py-3 px-4 rounded-lg transition cursor-pointer" %>
+      <% end %>
+
+      <script>
+        const dateInput   = document.getElementById('booking_date');
+        const timeInput   = document.getElementById('booking_time');
+        const hiddenField = document.getElementById('scheduled_at');
+        const dayIndicator  = document.getElementById('day_indicator');
+        const dayDisplay    = document.getElementById('day_display');
+        const weekendWarn   = document.getElementById('weekend_warning');
+        const submitBtn     = document.getElementById('datetime_submit');
+
+        const DAYS   = ['Sunday','Monday','Tuesday','Wednesday',
+                         'Thursday','Friday','Saturday'];
+        const MONTHS = ['January','February','March','April','May','June',
+                         'July','August','September','October','November','December'];
+
+        function update() {
+          const dateVal = dateInput.value;
+          const timeVal = timeInput.value;
+
+          if (!dateVal) {
+            dayIndicator.classList.add('hidden');
+            weekendWarn.classList.add('hidden');
+            hiddenField.value = '';
+            submitBtn.disabled = true;
+            return;
+          }
+
+          // Parse date parts directly to avoid browser timezone shifts
+          const [year, month, day] = dateVal.split('-').map(Number);
+          const d = new Date(year, month - 1, day);
+          const dow = d.getDay(); // 0 = Sunday, 6 = Saturday
+          const isWeekend = dow === 0 || dow === 6;
+
+          // Show day name
+          dayIndicator.classList.remove('hidden');
+          dayDisplay.textContent =
+            `${DAYS[dow]}, ${MONTHS[month - 1]} ${day}, ${year}`;
+
+          // Weekend handling
+          weekendWarn.classList.toggle('hidden', !isWeekend);
+
+          if (isWeekend) {
+            hiddenField.value = '';
+            submitBtn.disabled = true;
+            return;
+          }
+
+          // Combine date + time into the hidden field
+          if (timeVal) {
+            hiddenField.value = `${dateVal}T${timeVal}:00`;
+            submitBtn.disabled = false;
+          } else {
+            hiddenField.value = '';
+            submitBtn.disabled = true;
+          }
+        }
+
+        // Disable submit on load until both fields filled
+        submitBtn.disabled = true;
+
+        dateInput.addEventListener('change', update);
+        timeInput.addEventListener('change', update);
+      </script>
+    </div>
+
+  <%# ── STEP 4: Your Details ── %>
+  <% elsif step == "details" %>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Your Details</h2>
+
+      <% if user_signed_in? %>
+        <p class="text-gray-500 text-sm mb-6">
+          Booking as
+          <span class="font-medium text-gray-800"><%= current_user.full_name %></span>
+        </p>
+
+        <%= form_tag booking_update_path, method: :post do %>
+          <input type="hidden" name="step" value="details">
+          <%= submit_tag "Review Booking →",
+                class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold
+                        py-3 px-4 rounded-lg transition cursor-pointer" %>
+        <% end %>
+
+      <% else %>
+        <p class="text-gray-500 text-sm mb-6">
+          No account needed — just enter your contact details
+        </p>
+
+        <%= form_tag booking_update_path, method: :post do %>
+          <input type="hidden" name="step" value="details">
+
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <input type="text" name="guest_name" placeholder="John Smith" required
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" name="guest_email" placeholder="john@example.com" required
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="mt-1 text-xs text-gray-400">Your confirmation will be sent here</p>
+          </div>
+
+          <div class="mb-8">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <input type="tel" name="guest_phone" placeholder="+1 (555) 000-0000"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <%# Optional account creation %>
+          <div class="border-t border-gray-100 pt-6 mb-6">
+            <label class="flex items-start space-x-3 cursor-pointer">
+              <input type="checkbox" id="create_account_toggle"
+                class="mt-0.5 w-4 h-4 text-blue-600 border-gray-300 rounded">
+              <div>
+                <p class="text-sm font-medium text-gray-800">
+                  Create a free account
+                  <span class="text-gray-400 font-normal">(optional)</span>
+                </p>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Track this and future appointments online
+                </p>
+              </div>
+            </label>
+
+            <div id="account_fields" class="hidden mt-4 space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" name="account_password"
+                  placeholder="Min. 6 characters"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <input type="password" name="account_password_confirmation"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+
+          <%= submit_tag "Review Booking →",
+                class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold
+                        py-3 px-4 rounded-lg transition cursor-pointer" %>
+        <% end %>
+
+        <script>
+          document.getElementById('create_account_toggle')
+            .addEventListener('change', function() {
+              document.getElementById('account_fields')
+                .classList.toggle('hidden', !this.checked);
+            });
+        </script>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,54 @@
+<nav class="bg-gray-900 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+
+      <%# Logo %>
+      <div class="flex items-center space-x-8">
+        <%= link_to root_path, class: "text-xl font-bold text-white hover:text-blue-400 transition" do %>
+          🔧 Auto Enterprise
+        <% end %>
+
+        <%# Navigation links — only show when logged in %>
+        <% if user_signed_in? %>
+          <div class="hidden md:flex space-x-4">
+            <% if current_user.admin? %>
+              <%= link_to "Dashboard",    admin_dashboard_path,     class: "hover:text-blue-400 transition text-sm" %>
+              <%= link_to "Appointments", admin_appointments_path,  class: "hover:text-blue-400 transition text-sm" %>
+              <%= link_to "Services",     admin_services_path,      class: "hover:text-blue-400 transition text-sm" %>
+              <%= link_to "Users",        admin_users_path,         class: "hover:text-blue-400 transition text-sm" %>
+            <% else %>
+              <%= link_to "Dashboard",    customer_dashboard_path,      class: "hover:text-blue-400 transition text-sm" %>
+              <%= link_to "Appointments", customer_appointments_path,   class: "hover:text-blue-400 transition text-sm" %>
+              <%= link_to "My Vehicles",  customer_vehicles_path,       class: "hover:text-blue-400 transition text-sm" %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Right side — user info + logout %>
+      <div class="flex items-center space-x-4">
+        <% if user_signed_in? %>
+          <span class="text-sm text-gray-300">
+            <%= current_user.full_name %>
+            <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-medium
+              <%= current_user.admin? ? 'bg-blue-600' : 'bg-green-600' %>">
+              <%= current_user.admin? ? "Admin" : "Customer" %>
+            </span>
+          </span>
+          <%= button_to "Sign Out",
+                destroy_user_session_path,
+                method: :delete,
+                class: "bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1.5 rounded transition" %>
+        <% else %>
+          <%= link_to "Sign In",
+                new_user_session_path,
+                class: "text-sm hover:text-blue-400 transition" %>
+          <%= link_to "Sign Up",
+                new_user_registration_path,
+                class: "bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded transition" %>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,93 @@
+<div class="max-w-2xl mx-auto">
+  <div class="text-center mb-8">
+    <h2 class="text-2xl font-bold text-gray-900">Review Your Booking</h2>
+    <p class="text-gray-500 text-sm mt-1">Please confirm the details below</p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-6">
+
+    <%# Service %>
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-4">
+      <div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Service</p>
+        <p class="font-semibold text-gray-900"><%= @service&.name %></p>
+        <p class="text-sm text-gray-500"><%= @service&.formatted_duration %></p>
+      </div>
+      <span class="text-blue-600 font-bold text-lg"><%= @service&.formatted_price %></span>
+    </div>
+
+    <%# Vehicle %>
+    <div class="pb-4 border-b border-gray-100 mb-4">
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Vehicle</p>
+      <p class="font-semibold text-gray-900">
+        <% if @booking["vehicle_id"].present? %>
+          <%= Vehicle.find(@booking["vehicle_id"]).display_name rescue "Saved Vehicle" %>
+        <% else %>
+          <%= [@booking["guest_vehicle_year"],
+               @booking["guest_vehicle_make"],
+               @booking["guest_vehicle_model"]].compact.join(" ") %>
+        <% end %>
+      </p>
+    </div>
+
+    <%# Date & Time %>
+    <div class="pb-4 border-b border-gray-100 mb-4">
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Requested Date & Time</p>
+      <p class="font-semibold text-gray-900">
+        <%= @booking["scheduled_at"].present? ?
+              Time.parse(@booking["scheduled_at"]).strftime("%B %d, %Y at %l:%M %p") :
+              "Not set" %>
+      </p>
+      <p class="text-xs text-gray-400 mt-1">Subject to confirmation by our team</p>
+    </div>
+
+    <%# Contact %>
+    <div class="mb-4">
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Contact</p>
+      <% if user_signed_in? %>
+        <p class="font-semibold text-gray-900"><%= current_user.full_name %></p>
+        <p class="text-sm text-gray-500"><%= current_user.email %></p>
+      <% else %>
+        <p class="font-semibold text-gray-900"><%= @booking["guest_name"] %></p>
+        <p class="text-sm text-gray-500"><%= @booking["guest_email"] %></p>
+      <% end %>
+    </div>
+
+    <%# Notes %>
+    <% if @booking["customer_notes"].present? %>
+      <div class="bg-gray-50 rounded-lg p-3">
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Notes</p>
+        <p class="text-sm text-gray-700"><%= @booking["customer_notes"] %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Error messages %>
+  <% if @errors&.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <ul class="list-disc list-inside text-red-600 text-sm space-y-1">
+        <% @errors.each do |error| %>
+          <li><%= error %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Submit %>
+  <%= form_tag booking_create_path, method: :post do %>
+    <% unless user_signed_in? %>
+      <input type="hidden" name="create_account" id="hidden_create_account" value="0">
+      <input type="hidden" name="account_password" id="hidden_password">
+      <input type="hidden" name="account_password_confirmation" id="hidden_password_confirmation">
+    <% end %>
+
+    <div class="flex space-x-4">
+      <%= link_to "← Go Back", booking_path(step: "details"),
+            class: "flex-1 text-center border border-gray-300 hover:border-gray-400
+                    text-gray-700 font-semibold py-3 px-4 rounded-lg transition" %>
+      <%= submit_tag "Confirm Booking",
+            class: "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold
+                    py-3 px-4 rounded-lg transition cursor-pointer" %>
+    </div>
+  <% end %>
+</div>
