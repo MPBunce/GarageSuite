@@ -1,0 +1,147 @@
+<div class="mb-8">
+  <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+  <p class="text-gray-500 text-sm mt-1">
+    Overview of appointments and system activity
+  </p>
+</div>
+
+<%# Stats Row %>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+  <div class="bg-white rounded-xl border border-gray-200 p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Pending</p>
+    <p class="text-3xl font-bold text-yellow-500">
+      <%= @pending_appointments.count %>
+    </p>
+    <p class="text-sm text-gray-500 mt-1">Awaiting confirmation</p>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Confirmed</p>
+    <p class="text-3xl font-bold text-green-600">
+      <%= @confirmed_appointments.count %>
+    </p>
+    <p class="text-sm text-gray-500 mt-1">Upcoming appointments</p>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Customers</p>
+    <p class="text-3xl font-bold text-blue-600">
+      <%= @total_customers %>
+    </p>
+    <p class="text-sm text-gray-500 mt-1">Registered accounts</p>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Services</p>
+    <p class="text-3xl font-bold text-purple-600">
+      <%= @total_services %>
+    </p>
+    <p class="text-sm text-gray-500 mt-1">Active services</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+  <%# Pending appointments — need action %>
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">
+        🟡 Pending Approval
+      </h2>
+      <%= link_to "View all →", admin_appointments_path,
+            class: "text-sm text-blue-600 hover:text-blue-700" %>
+    </div>
+
+    <% if @pending_appointments.any? %>
+      <div class="space-y-3">
+        <% @pending_appointments.first(5).each do |apt| %>
+          <div class="bg-white rounded-xl border border-yellow-200 p-4
+                      hover:shadow-sm transition">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="font-semibold text-gray-900">
+                  <%= apt.contact_name %>
+                </p>
+                <p class="text-sm text-gray-500">
+                  <%= apt.service.name %> — <%= apt.vehicle_display %>
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
+                  📅 <%= apt.scheduled_at
+                              .in_time_zone("Eastern Time (US & Canada)")
+                              .strftime("%b %d at %l:%M %p EST") %>
+                </p>
+                <% if apt.guest? %>
+                  <span class="text-xs text-orange-500 font-medium">Guest booking</span>
+                <% end %>
+              </div>
+              <%= link_to "Review →",
+                    admin_appointment_path(apt),
+                    class: "text-sm text-blue-600 hover:text-blue-700
+                            font-medium shrink-0 ml-4" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-white rounded-xl border border-dashed border-gray-300
+                  p-8 text-center">
+        <p class="text-gray-400 text-sm">✅ No pending appointments</p>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Confirmed upcoming %>
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">
+        🟢 Upcoming Confirmed
+      </h2>
+      <%= link_to "View all →", admin_appointments_path,
+            class: "text-sm text-blue-600 hover:text-blue-700" %>
+    </div>
+
+    <% if @confirmed_appointments.any? %>
+      <div class="space-y-3">
+        <% @confirmed_appointments.first(5).each do |apt| %>
+          <div class="bg-white rounded-xl border border-green-200 p-4
+                      hover:shadow-sm transition">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="font-semibold text-gray-900">
+                  <%= apt.contact_name %>
+                </p>
+                <p class="text-sm text-gray-500">
+                  <%= apt.service.name %> — <%= apt.vehicle_display %>
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
+                  📅 <%= apt.scheduled_at
+                              .in_time_zone("Eastern Time (US & Canada)")
+                              .strftime("%b %d at %l:%M %p EST") %>
+                </p>
+              </div>
+              <%= link_to "View →",
+                    admin_appointment_path(apt),
+                    class: "text-sm text-blue-600 hover:text-blue-700
+                            font-medium shrink-0 ml-4" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-white rounded-xl border border-dashed border-gray-300
+                  p-8 text-center">
+        <p class="text-gray-400 text-sm">No confirmed appointments yet</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# Quick links %>
+<div class="mt-8 flex flex-wrap gap-3">
+  <%= link_to "📋 All Appointments", admin_appointments_path,
+        class: "bg-gray-800 hover:bg-gray-900 text-white font-medium
+                px-5 py-2.5 rounded-lg transition text-sm" %>
+  <%= link_to "🔧 Manage Services", admin_services_path,
+        class: "bg-gray-800 hover:bg-gray-900 text-white font-medium
+                px-5 py-2.5 rounded-lg transition text-sm" %>
+  <%= link_to "👥 View Customers", admin_users_path,
+        class: "border border-gray-300 hover:border-gray-400 text-gray-700
+                font-medium px-5 py-2.5 rounded-lg transition text-sm" %>
+</div>

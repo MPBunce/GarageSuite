@@ -1,0 +1,115 @@
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6">
+    <%= link_to "← Back to Users", admin_users_path,
+          class: "text-sm text-gray-500 hover:text-gray-700" %>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-gray-200 p-8 mb-4">
+    <div class="flex items-start justify-between mb-6">
+      <div class="flex items-center space-x-4">
+        <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center
+                    justify-center text-blue-600 font-bold text-xl">
+          <%= @user.first_name.first.upcase %>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900"><%= @user.full_name %></h1>
+          <p class="text-gray-500"><%= @user.email %></p>
+          <% if @user.phone_number.present? %>
+            <p class="text-gray-400 text-sm">📞 <%= @user.phone_number %></p>
+          <% end %>
+        </div>
+      </div>
+      <div class="flex flex-col items-end space-y-2">
+        <% @user.roles.each do |role| %>
+          <span class="px-2 py-0.5 rounded-full text-xs font-medium
+            <%= role.name == 'admin' ?
+                  'bg-blue-100 text-blue-700' :
+                  'bg-green-100 text-green-700' %>">
+            <%= role.name.capitalize %>
+          </span>
+        <% end %>
+        <span class="px-2 py-0.5 rounded-full text-xs font-medium
+          <%= @user.active? ?
+                'bg-green-100 text-green-700' :
+                'bg-red-100 text-red-700' %>">
+          <%= @user.active? ? "Active" : "Inactive" %>
+        </span>
+      </div>
+    </div>
+
+    <%# Stats %>
+    <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+      <div class="text-center">
+        <p class="text-2xl font-bold text-gray-900">
+          <%= @user.appointments.count %>
+        </p>
+        <p class="text-xs text-gray-400 mt-1">Total Appointments</p>
+      </div>
+      <div class="text-center">
+        <p class="text-2xl font-bold text-yellow-500">
+          <%= @user.appointments.pending.count %>
+        </p>
+        <p class="text-xs text-gray-400 mt-1">Pending</p>
+      </div>
+      <div class="text-center">
+        <p class="text-2xl font-bold text-blue-600">
+          <%= @user.vehicles.active.count %>
+        </p>
+        <p class="text-xs text-gray-400 mt-1">Vehicles</p>
+      </div>
+    </div>
+
+    <%# Appointment history %>
+    <h3 class="font-semibold text-gray-900 mb-3">Appointment History</h3>
+    <% if @appointments.any? %>
+      <div class="space-y-3">
+        <% @appointments.order(scheduled_at: :desc).each do |apt| %>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <p class="font-medium text-gray-900 text-sm">
+                <%= apt.service.name %>
+              </p>
+              <p class="text-xs text-gray-400">
+                <%= apt.vehicle_display %> —
+                <%= apt.scheduled_at
+                        .in_time_zone("Eastern Time (US & Canada)")
+                        .strftime("%b %d, %Y at %l:%M %p EST") %>
+              </p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                <%= case apt.status
+                    when 'pending'   then 'bg-yellow-100 text-yellow-800'
+                    when 'confirmed' then 'bg-green-100 text-green-800'
+                    when 'completed' then 'bg-gray-100 text-gray-600'
+                    when 'cancelled' then 'bg-red-100 text-red-700'
+                    end %>">
+                <%= apt.status.capitalize %>
+              </span>
+              <%= link_to "→", admin_appointment_path(apt),
+                    class: "text-blue-600 hover:text-blue-700" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-400">No appointments yet</p>
+    <% end %>
+  </div>
+
+  <%# Deactivate user %>
+  <% if @user.active? && !@user.admin? %>
+    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+      <h3 class="font-semibold text-gray-900 mb-1">Danger Zone</h3>
+      <p class="text-sm text-gray-400 mb-4">
+        Deactivating a user prevents them from logging in
+      </p>
+      <%= button_to "Deactivate User",
+            admin_user_path(@user),
+            method: :delete,
+            data: { turbo_confirm: "Deactivate #{@user.full_name}?" },
+            class: "border border-red-300 hover:bg-red-50 text-red-600
+                    font-medium px-4 py-2 rounded-lg transition text-sm" %>
+    </div>
+  <% end %>
+</div>

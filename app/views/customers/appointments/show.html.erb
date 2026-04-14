@@ -1,0 +1,96 @@
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center space-x-3 mb-6">
+    <%= link_to "← Back to Appointments", customer_appointments_path,
+          class: "text-sm text-gray-500 hover:text-gray-700" %>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-gray-200 p-8">
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">
+          <%= @appointment.service.name %>
+        </h1>
+        <p class="text-gray-400 text-sm mt-1">
+          Booked <%= @appointment.created_at.strftime("%B %d, %Y") %>
+        </p>
+      </div>
+      <span class="px-3 py-1 rounded-full text-sm font-medium
+        <%= case @appointment.status
+            when 'pending'   then 'bg-yellow-100 text-yellow-800'
+            when 'confirmed' then 'bg-green-100 text-green-800'
+            when 'completed' then 'bg-gray-100 text-gray-600'
+            when 'cancelled' then 'bg-red-100 text-red-700'
+            end %>">
+        <%= @appointment.status.capitalize %>
+      </span>
+    </div>
+
+    <div class="space-y-5">
+      <div class="grid grid-cols-2 gap-5">
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Service</p>
+          <p class="font-semibold text-gray-900"><%= @appointment.service.name %></p>
+          <p class="text-sm text-gray-500"><%= @appointment.service.formatted_duration %></p>
+          <p class="text-sm text-blue-600 font-medium">
+            <%= @appointment.service.formatted_price %>
+          </p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Vehicle</p>
+          <p class="font-semibold text-gray-900">
+            <%= @appointment.vehicle_display %>
+          </p>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-100 pt-5">
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">
+          Requested Date & Time
+        </p>
+        <p class="font-semibold text-gray-900">
+          <%= @appointment.scheduled_at
+                .in_time_zone("Eastern Time (US & Canada)")
+                .strftime("%A, %B %d, %Y at %l:%M %p EST") %>
+        </p>
+      </div>
+
+      <% if @appointment.customer_notes.present? %>
+        <div class="border-t border-gray-100 pt-5">
+          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Your Notes</p>
+          <p class="text-gray-700 text-sm"><%= @appointment.customer_notes %></p>
+        </div>
+      <% end %>
+
+      <% if @appointment.admin_notes.present? %>
+        <div class="border-t border-gray-100 pt-5 bg-blue-50 rounded-lg p-4">
+          <p class="text-xs text-blue-400 uppercase tracking-wide mb-1">
+            Note from our team
+          </p>
+          <p class="text-blue-800 text-sm"><%= @appointment.admin_notes %></p>
+        </div>
+      <% end %>
+
+      <% if @appointment.confirmed? && @appointment.assigned_admin.present? %>
+        <div class="border-t border-gray-100 pt-5">
+          <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">
+            Confirmed By
+          </p>
+          <p class="font-medium text-green-700">
+            ✅ <%= @appointment.assigned_admin.full_name %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @appointment.pending? %>
+      <div class="mt-8 pt-6 border-t border-gray-100">
+        <%= button_to "Cancel Appointment",
+              customer_appointment_path(@appointment),
+              method: :delete,
+              data: { turbo_confirm: "Are you sure you want to cancel?" },
+              class: "w-full border border-red-300 hover:bg-red-50 text-red-600
+                      font-medium py-2.5 rounded-lg transition text-sm" %>
+      </div>
+    <% end %>
+  </div>
+</div>

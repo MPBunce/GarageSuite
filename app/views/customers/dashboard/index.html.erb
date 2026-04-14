@@ -1,0 +1,128 @@
+<div class="mb-8">
+  <h1 class="text-2xl font-bold text-gray-900">
+    Welcome back, <%= current_user.first_name %>! 👋
+  </h1>
+  <p class="text-gray-500 text-sm mt-1">
+    Here's a summary of your appointments and vehicles
+  </p>
+</div>
+
+<%# Stats row %>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+  <div class="bg-white rounded-xl border border-gray-200 p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Upcoming</p>
+    <p class="text-3xl font-bold text-blue-600">
+      <%= current_user.appointments.upcoming.count %>
+    </p>
+    <p class="text-sm text-gray-500 mt-1">Appointments</p>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Pending</p>
+    <p class="text-3xl font-bold text-yellow-500">
+      <%= current_user.appointments.pending.count %>
+    </p>
+    <p class="text-sm text-gray-500 mt-1">Awaiting confirmation</p>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Vehicles</p>
+    <p class="text-3xl font-bold text-green-600">
+      <%= current_user.vehicles.active.count %>
+    </p>
+    <p class="text-sm text-gray-500 mt-1">Saved vehicles</p>
+  </div>
+</div>
+
+<%# Upcoming appointments %>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">Upcoming Appointments</h2>
+      <%= link_to "View all →", customer_appointments_path,
+            class: "text-sm text-blue-600 hover:text-blue-700" %>
+    </div>
+
+    <% if @upcoming_appointments.any? %>
+      <div class="space-y-3">
+        <% @upcoming_appointments.each do |apt| %>
+          <div class="bg-white rounded-xl border border-gray-200 p-4
+                      hover:shadow-sm transition">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="font-semibold text-gray-900"><%= apt.service.name %></p>
+                <p class="text-sm text-gray-500 mt-0.5">
+                  <%= apt.vehicle_display %>
+                </p>
+                <p class="text-sm text-gray-400 mt-1">
+                  📅 <%= apt.scheduled_at
+                            .in_time_zone("Eastern Time (US & Canada)")
+                            .strftime("%b %d, %Y at %l:%M %p EST") %>
+                </p>
+              </div>
+              <span class="px-2 py-1 rounded-full text-xs font-medium
+                <%= case apt.status
+                    when 'pending'   then 'bg-yellow-100 text-yellow-800'
+                    when 'confirmed' then 'bg-green-100 text-green-800'
+                    when 'completed' then 'bg-gray-100 text-gray-600'
+                    when 'cancelled' then 'bg-red-100 text-red-700'
+                    end %>">
+                <%= apt.status.capitalize %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center">
+        <p class="text-gray-400 text-sm mb-3">No upcoming appointments</p>
+        <%= link_to "Book an Appointment", booking_path,
+              class: "bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium
+                      px-4 py-2 rounded-lg transition" %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Vehicles %>
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">My Vehicles</h2>
+      <%= link_to "View all →", customer_vehicles_path,
+            class: "text-sm text-blue-600 hover:text-blue-700" %>
+    </div>
+
+    <% if @vehicles.any? %>
+      <div class="space-y-3">
+        <% @vehicles.each do |vehicle| %>
+          <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🚗</span>
+              <div>
+                <p class="font-semibold text-gray-900"><%= vehicle.display_name %></p>
+                <p class="text-sm text-gray-400"><%= vehicle.license_plate %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center">
+        <p class="text-gray-400 text-sm mb-3">No vehicles saved yet</p>
+        <%= link_to "Add a Vehicle", new_customer_vehicle_path,
+              class: "bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium
+                      px-4 py-2 rounded-lg transition" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# Quick actions %>
+<div class="mt-8 flex flex-wrap gap-3">
+  <%= link_to "📅 Book Appointment", booking_path,
+        class: "bg-blue-600 hover:bg-blue-700 text-white font-medium
+                px-5 py-2.5 rounded-lg transition text-sm" %>
+  <%= link_to "🚗 Add Vehicle", new_customer_vehicle_path,
+        class: "bg-gray-800 hover:bg-gray-900 text-white font-medium
+                px-5 py-2.5 rounded-lg transition text-sm" %>
+  <%= link_to "📋 All Appointments", customer_appointments_path,
+        class: "border border-gray-300 hover:border-gray-400 text-gray-700
+                font-medium px-5 py-2.5 rounded-lg transition text-sm" %>
+</div>

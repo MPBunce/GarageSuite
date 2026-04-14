@@ -2,19 +2,25 @@ class BookingController < ApplicationController
   STEPS = %w[service vehicle datetime details].freeze
 
   def index
-    # Start fresh or resume
     session[:booking] ||= {}
-    @step     = "service"
-    @services = Service.active.order(:name)
+    @step = params[:step] || "service"
+
+    case @step
+    when "service"
+      @services = Service.active.order(:name)
+    when "vehicle"
+      @vehicles = current_user.vehicles.active if user_signed_in?
+    when "datetime"
+      # nothing extra needed
+    when "details"
+      # nothing extra needed
+    end
   end
 
   def update
     session[:booking] ||= {}
     current_step = params[:step]
-
-    # Merge this step's data into the session
     session[:booking].merge!(booking_params_for(current_step))
-
     next_step = next_step_after(current_step)
 
     if next_step == "confirm"
@@ -25,13 +31,9 @@ class BookingController < ApplicationController
   end
 
   def confirm
-    @booking  = session[:booking] || {}
-    @service  = Service.find_by(id: @booking["service_id"])
-
-    # Pre-fill if logged in
-    if user_signed_in?
-      @vehicles = current_user.vehicles.active
-    end
+    @booking = session[:booking] || {}
+    @service = Service.find_by(id: @booking["service_id"])
+    @vehicles = current_user.vehicles.active if user_signed_in?
   end
 
   def create
@@ -40,15 +42,27 @@ class BookingController < ApplicationController
     appointment = build_appointment_from_session(@booking)
 
     if appointment.save
-      # Handle optional account creation
-      if params[:create_account] == "1" && !user_signed_in?
+      if @booking["account_password"].present? && !user_signed_in?
         user = create_guest_account(appointment)
         if user&.persisted?
+          # ── Create the vehicle under the new user's account ──
+          vehicle = create_vehicle_for_user(user, @booking)
+
+          # Link the vehicle to the appointment if it saved successfully
+          if vehicle&.persisted?
+            appointment.update(vehicle: vehicle)
+          end
+
           appointment.claim!(user)
           sign_in(user)
           session.delete(:booking)
           redirect_to customer_appointments_path,
-                      notice: "Booking confirmed and account created! Welcome."
+                      notice: "Booking confirmed and account created! Welcome, #{user.first_name}."
+          return
+        else
+          session.delete(:booking)
+          redirect_to appointment_result_path(token: appointment.guest_token),
+                      alert: "Booking confirmed! However we couldn't create your account — #{user.errors.full_messages.join(', ')}."
           return
         end
       end
@@ -63,44 +77,67 @@ class BookingController < ApplicationController
                     notice: "Booking confirmed! Save this page to track your appointment."
       end
     else
-      @errors = appointment.errors.full_messages
+      @errors  = appointment.errors.full_messages
+      @service = Service.find_by(id: @booking["service_id"])
       render :confirm, status: :unprocessable_entity
     end
   end
 
   def lookup
-    # Guest appointment lookup page
   end
 
   def result
     @appointment = Appointment.find_by(guest_token: params[:token])
     if @appointment.nil?
-      redirect_to appointment_lookup_path,
-                  alert: "Appointment not found."
+      redirect_to appointment_lookup_path, alert: "Appointment not found."
     end
   end
 
   private
 
   def next_step_after(current_step)
-    steps = STEPS
-    current_index = steps.index(current_step)
-    return "confirm" if current_index.nil? || current_index >= steps.length - 1
-    steps[current_index + 1]
+    current_index = STEPS.index(current_step)
+    return "confirm" if current_index.nil? || current_index >= STEPS.length - 1
+    STEPS[current_index + 1]
   end
 
   def booking_params_for(step)
     case step
     when "service"
       params.permit(:service_id).to_h
+
     when "vehicle"
-      params.permit(:vehicle_id, :guest_vehicle_make, :guest_vehicle_model,
-                    :guest_vehicle_year, :guest_vehicle_license).to_h
+      params.permit(
+        :vehicle_id,
+        :guest_vehicle_make,
+        :guest_vehicle_model,
+        :guest_vehicle_year,
+        :guest_vehicle_license
+      ).to_h
+
     when "datetime"
-      params.permit(:scheduled_at).to_h
+      result = params.permit(:scheduled_at, :customer_notes).to_h
+
+      if result["scheduled_at"].present?
+        est    = ActiveSupport::TimeZone["Eastern Time (US & Canada)"]
+        parsed = est.parse(result["scheduled_at"])
+        result["scheduled_at"] = parsed.iso8601
+      end
+
+      result
+
     when "details"
-      params.permit(:guest_name, :guest_email, :guest_phone,
-                    :customer_notes).to_h
+      params.permit(
+        :guest_name,
+        :guest_email,
+        :guest_phone,
+        :customer_notes,
+        :account_password,
+        :account_password_confirmation
+      ).to_h.tap do |p|
+        p["create_account"] = params[:create_account] == "1"
+      end
+
     else
       {}
     end
@@ -108,14 +145,14 @@ class BookingController < ApplicationController
 
   def build_appointment_from_session(booking)
     appointment = Appointment.new(
-      service_id:      booking["service_id"],
-      scheduled_at:    booking["scheduled_at"],
-      customer_notes:  booking["customer_notes"],
-      status:          :pending
+      service_id:     booking["service_id"],
+      scheduled_at:   booking["scheduled_at"],
+      customer_notes: booking["customer_notes"],
+      status:         :pending
     )
 
     if user_signed_in?
-      appointment.customer = current_user
+      appointment.customer   = current_user
       appointment.vehicle_id = booking["vehicle_id"] if booking["vehicle_id"].present?
     else
       appointment.guest_name  = booking["guest_name"]
@@ -123,7 +160,6 @@ class BookingController < ApplicationController
       appointment.guest_phone = booking["guest_phone"]
     end
 
-    # Guest vehicle details if no saved vehicle selected
     if booking["vehicle_id"].blank?
       appointment.guest_vehicle_make    = booking["guest_vehicle_make"]
       appointment.guest_vehicle_model   = booking["guest_vehicle_model"]
@@ -135,14 +171,47 @@ class BookingController < ApplicationController
   end
 
   def create_guest_account(appointment)
-    User.create(
-      first_name: appointment.guest_name.split.first,
-      last_name:  appointment.guest_name.split.last || "-",
-      email:      appointment.guest_email,
-      phone_number: appointment.guest_phone,
-      password:   params[:account_password],
-      password_confirmation: params[:account_password_confirmation],
-      active:     true
-    ).tap { |u| u.assign_role(Role::CUSTOMER) if u.persisted? }
+    name_parts = appointment.guest_name.to_s.split(" ", 2)
+
+    user = User.new(
+      first_name:            name_parts[0] || "Guest",
+      last_name:             name_parts[1] || "-",
+      email:                 appointment.guest_email,
+      phone_number:          appointment.guest_phone,
+      password:              @booking["account_password"],
+      password_confirmation: @booking["account_password_confirmation"],
+      active:                true
+    )
+
+    if user.save
+      user.assign_role(Role::CUSTOMER)
+      user
+    else
+      user
+    end
   end
+
+  def create_vehicle_for_user(user, booking)
+    return nil if booking["guest_vehicle_make"].blank?    ||
+                  booking["guest_vehicle_model"].blank?   ||
+                  booking["guest_vehicle_year"].blank?    ||
+                  booking["guest_vehicle_license"].blank?
+
+    vehicle = Vehicle.new(
+      user:          user,
+      make:          booking["guest_vehicle_make"],
+      model:         booking["guest_vehicle_model"],
+      year:          booking["guest_vehicle_year"].to_i,
+      license_plate: booking["guest_vehicle_license"],
+      active:        true
+    )
+
+    if vehicle.save
+      vehicle
+    else
+      Rails.logger.warn "Could not save vehicle for user #{user.id}: #{vehicle.errors.full_messages.join(', ')}"
+      nil
+    end
+  end
+
 end

@@ -1,0 +1,64 @@
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">My Vehicles</h1>
+    <p class="text-gray-500 text-sm mt-1">Manage your saved vehicles</p>
+  </div>
+  <%= link_to "🚗 Add Vehicle", new_customer_vehicle_path,
+        class: "bg-gray-800 hover:bg-gray-900 text-white font-medium
+                px-4 py-2.5 rounded-lg transition text-sm" %>
+</div>
+
+<% if @vehicles.any? %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <% @vehicles.each do |vehicle| %>
+      <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center space-x-4">
+            <span class="text-4xl">🚗</span>
+            <div>
+              <h3 class="font-semibold text-gray-900 text-lg">
+                <%= vehicle.display_name %>
+              </h3>
+              <p class="text-sm text-gray-500">
+                🔖 <%= vehicle.license_plate %>
+              </p>
+              <% if vehicle.vin.present? %>
+                <p class="text-xs text-gray-400 mt-1">
+                  VIN: <%= vehicle.vin %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+
+          <%= button_to "Remove",
+                customer_vehicle_path(vehicle),
+                method: :delete,
+                data: { turbo_confirm: "Remove this vehicle?" },
+                class: "text-xs text-red-500 hover:text-red-700
+                        border border-red-200 hover:border-red-400
+                        px-3 py-1.5 rounded-lg transition" %>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-gray-100">
+          <p class="text-xs text-gray-400">
+            Appointments with this vehicle:
+            <span class="font-medium text-gray-600">
+              <%= vehicle.appointments.count %>
+            </span>
+          </p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="bg-white rounded-xl border border-dashed border-gray-300 p-16 text-center">
+    <p class="text-4xl mb-4">🚗</p>
+    <h3 class="text-lg font-semibold text-gray-900 mb-2">No vehicles saved</h3>
+    <p class="text-gray-400 text-sm mb-6">
+      Add your vehicles to speed up future bookings
+    </p>
+    <%= link_to "Add a Vehicle", new_customer_vehicle_path,
+          class: "bg-gray-800 hover:bg-gray-900 text-white font-medium
+                  px-6 py-2.5 rounded-lg transition" %>
+  </div>
+<% end %>

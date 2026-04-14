@@ -1,0 +1,104 @@
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">All Appointments</h1>
+    <p class="text-gray-500 text-sm mt-1">
+      <%= @appointments.count %> total appointments
+    </p>
+  </div>
+</div>
+
+<%# Status filter tabs %>
+<div class="flex space-x-2 mb-6">
+  <% statuses = [["All", ""], ["Pending", "pending"],
+                 ["Confirmed", "confirmed"], ["Completed", "completed"],
+                 ["Cancelled", "cancelled"]] %>
+  <% statuses.each do |label, value| %>
+    <%= link_to label,
+          admin_appointments_path(status: value),
+          class: "px-4 py-2 rounded-lg text-sm font-medium transition
+            #{params[:status].to_s == value.to_s ?
+              'bg-gray-900 text-white' :
+              'bg-white border border-gray-200 text-gray-600 hover:border-gray-400'}" %>
+  <% end %>
+</div>
+
+<% filtered = params[:status].present? ?
+      @appointments.select { |a| a.status == params[:status] } :
+      @appointments %>
+
+<% if filtered.any? %>
+  <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b border-gray-200">
+        <tr>
+          <th class="text-left px-5 py-3 text-xs font-medium text-gray-500
+                     uppercase tracking-wide">Customer</th>
+          <th class="text-left px-5 py-3 text-xs font-medium text-gray-500
+                     uppercase tracking-wide">Service</th>
+          <th class="text-left px-5 py-3 text-xs font-medium text-gray-500
+                     uppercase tracking-wide">Vehicle</th>
+          <th class="text-left px-5 py-3 text-xs font-medium text-gray-500
+                     uppercase tracking-wide">Date & Time</th>
+          <th class="text-left px-5 py-3 text-xs font-medium text-gray-500
+                     uppercase tracking-wide">Status</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% filtered.each do |apt| %>
+          <tr class="hover:bg-gray-50 transition">
+            <td class="px-5 py-4">
+              <p class="font-medium text-gray-900"><%= apt.contact_name %></p>
+              <p class="text-xs text-gray-400"><%= apt.contact_email %></p>
+              <% if apt.guest? %>
+                <span class="text-xs text-orange-500">Guest</span>
+              <% end %>
+            </td>
+            <td class="px-5 py-4">
+              <p class="text-gray-900"><%= apt.service.name %></p>
+              <p class="text-xs text-gray-400">
+                <%= apt.service.formatted_duration %>
+              </p>
+            </td>
+            <td class="px-5 py-4 text-gray-700">
+              <%= apt.vehicle_display %>
+            </td>
+            <td class="px-5 py-4">
+              <p class="text-gray-900">
+                <%= apt.scheduled_at
+                        .in_time_zone("Eastern Time (US & Canada)")
+                        .strftime("%b %d, %Y") %>
+              </p>
+              <p class="text-xs text-gray-400">
+                <%= apt.scheduled_at
+                        .in_time_zone("Eastern Time (US & Canada)")
+                        .strftime("%l:%M %p EST") %>
+              </p>
+            </td>
+            <td class="px-5 py-4">
+              <span class="px-2 py-1 rounded-full text-xs font-medium
+                <%= case apt.status
+                    when 'pending'   then 'bg-yellow-100 text-yellow-800'
+                    when 'confirmed' then 'bg-green-100 text-green-800'
+                    when 'completed' then 'bg-gray-100 text-gray-600'
+                    when 'cancelled' then 'bg-red-100 text-red-700'
+                    end %>">
+                <%= apt.status.capitalize %>
+              </span>
+            </td>
+            <td class="px-5 py-4 text-right">
+              <%= link_to "View →",
+                    admin_appointment_path(apt),
+                    class: "text-blue-600 hover:text-blue-700 font-medium" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="bg-white rounded-xl border border-dashed border-gray-300
+              p-16 text-center">
+    <p class="text-gray-400">No appointments found</p>
+  </div>
+<% end %>
