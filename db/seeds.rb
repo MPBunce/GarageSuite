@@ -10,10 +10,10 @@ admin_role = Role.find_or_create_by!(name: Role::ADMIN) do |r|
 end
 
 # Create a default admin user
-admin = User.find_or_create_by!(email: "admin@example.com") do |u|
+admin = User.find_or_create_by!(email: "dnaautosource@gmail.com") do |u|
   u.first_name = "Admin"
   u.last_name  = "User"
-  u.password   = "password123!"
+  u.password   = "astonmartin123!"
   u.active     = true
 end
 
