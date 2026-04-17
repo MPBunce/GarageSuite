@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 
   # Public
   root "pages#home"
+  get "/up", to: proc { [200, {}, ["OK"]] }
 
   # Public booking flow
   get  "/booking",         to: "booking#index",   as: :booking
