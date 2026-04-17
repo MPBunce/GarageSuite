@@ -24,14 +24,14 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t your-ecr-repo:latest .
+          docker build -t aems:latest .
 
       - name: Tag Docker image
         run: |
-          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/your-ecr-repo:latest"
-          docker tag your-ecr-repo:latest $IMAGE_URI
+          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/aems:latest"
+          docker tag aems:latest $IMAGE_URI
 
       - name: Push Docker image to ECR
         run: |
-          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/your-ecr-repo:latest"
+          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/aems:latest"
           docker push $IMAGE_URI
