@@ -13,6 +13,29 @@ class Admin::AppointmentsController < Admin::BaseController
   def update
     case params[:action_type]
     when "confirm"
+      scheduled_at = params.dig(:appointment, :scheduled_at)
+
+      if scheduled_at.blank?
+        scheduled_date = params.dig(:appointment, :scheduled_date)
+        scheduled_time = params.dig(:appointment, :scheduled_time)
+
+        if scheduled_date.present? && scheduled_time.present?
+          est = ActiveSupport::TimeZone["Eastern Time (US & Canada)"]
+          scheduled_at = est.parse("#{scheduled_date} #{scheduled_time}")
+        end
+      end
+
+      if scheduled_at.blank?
+        @appointment.errors.add(:scheduled_at, "date and time must be selected before confirming")
+        render :show, status: :unprocessable_entity
+        return
+      end
+
+      unless @appointment.update(scheduled_at: scheduled_at)
+        render :show, status: :unprocessable_entity
+        return
+      end
+
       @appointment.confirm!(current_user)
       redirect_to admin_appointment_path(@appointment),
                   notice: "Appointment confirmed."

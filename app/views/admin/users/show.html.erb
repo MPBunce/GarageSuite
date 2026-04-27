@@ -71,9 +71,9 @@
               </p>
               <p class="text-xs text-gray-400">
                 <%= apt.vehicle_display %> —
-                <%= apt.scheduled_at
-                        .in_time_zone("Eastern Time (US & Canada)")
-                        .strftime("%b %d, %Y at %l:%M %p EST") %>
+                <%= apt.scheduled_at.present? ?
+                  apt.scheduled_at.in_time_zone("Eastern Time (US & Canada)").strftime("%b %d, %Y at %l:%M %p EST") :
+                  "To be scheduled" %>
               </p>
             </div>
             <div class="flex items-center space-x-3">

@@ -17,7 +17,7 @@ class Appointment < ApplicationRecord
   belongs_to :service
 
   # Validations — shared
-  validates :scheduled_at, presence: true
+  validates :scheduled_at, presence: true, unless: :pending?
   validates :service_id,   presence: true
 
   # Validations — guest vs logged in

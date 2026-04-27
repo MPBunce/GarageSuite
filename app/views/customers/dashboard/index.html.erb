@@ -53,9 +53,9 @@
                   <%= apt.vehicle_display %>
                 </p>
                 <p class="text-sm text-gray-400 mt-1">
-                  📅 <%= apt.scheduled_at
-                            .in_time_zone("Eastern Time (US & Canada)")
-                            .strftime("%b %d, %Y at %l:%M %p EST") %>
+                  📅 <%= apt.scheduled_at.present? ?
+                          apt.scheduled_at.in_time_zone("Eastern Time (US & Canada)").strftime("%b %d, %Y at %l:%M %p EST") :
+                          "To be scheduled" %>
                 </p>
               </div>
               <span class="px-2 py-1 rounded-full text-xs font-medium

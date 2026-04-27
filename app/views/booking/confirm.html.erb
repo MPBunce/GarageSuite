@@ -30,15 +30,10 @@
       </p>
     </div>
 
-    <%# Date & Time %>
     <div class="pb-4 border-b border-gray-100 mb-4">
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Requested Date & Time</p>
-      <p class="font-semibold text-gray-900">
-        <%= @booking["scheduled_at"].present? ?
-              Time.parse(@booking["scheduled_at"]).strftime("%B %d, %Y at %l:%M %p") :
-              "Not set" %>
-      </p>
-      <p class="text-xs text-gray-400 mt-1">Subject to confirmation by our team</p>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Scheduling</p>
+      <p class="font-semibold text-gray-900">Date and time assigned by our team</p>
+      <p class="text-xs text-gray-400 mt-1">We'll confirm your exact appointment slot after review</p>
     </div>
 
     <%# Contact %>

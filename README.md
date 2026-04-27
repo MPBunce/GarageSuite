@@ -22,3 +22,14 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+
+### To Do
+
+- Change site name and header color
+- Get DNS
+- Make Price Optional
+- Remove Date/Time picking for customers
+- Update logo
+- Banner at the bottom 
+- Contact us page

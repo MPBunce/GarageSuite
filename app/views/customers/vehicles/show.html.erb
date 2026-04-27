@@ -57,9 +57,9 @@
               <div class="flex items-center justify-between text-sm">
                 <span class="text-gray-700"><%= apt.service.name %></span>
                 <span class="text-gray-400">
-                  <%= apt.scheduled_at
-                          .in_time_zone("Eastern Time (US & Canada)")
-                          .strftime("%b %d, %Y") %>
+                  <%= apt.scheduled_at.present? ?
+                          apt.scheduled_at.in_time_zone("Eastern Time (US & Canada)").strftime("%b %d, %Y") :
+                          "To be scheduled" %>
                 </span>
               </div>
             <% end %>

@@ -116,15 +116,7 @@ class BookingController < ApplicationController
       ).to_h
 
     when "datetime"
-      result = params.permit(:scheduled_at, :customer_notes).to_h
-
-      if result["scheduled_at"].present?
-        est    = ActiveSupport::TimeZone["Eastern Time (US & Canada)"]
-        parsed = est.parse(result["scheduled_at"])
-        result["scheduled_at"] = parsed.iso8601
-      end
-
-      result
+      params.permit(:customer_notes).to_h
 
     when "details"
       params.permit(

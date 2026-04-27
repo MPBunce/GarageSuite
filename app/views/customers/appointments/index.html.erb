@@ -37,11 +37,21 @@
                 </p>
               </div>
               <div>
-                <span class="text-gray-400">📅 Date & Time</span>
+                <span class="text-gray-400">📅 Schedule</span>
                 <p class="font-medium text-gray-700 mt-0.5">
-                  <%= apt.scheduled_at
-                          .in_time_zone("Eastern Time (US & Canada)")
-                          .strftime("%b %d, %Y at %l:%M %p EST") %>
+                  <% if apt.scheduled_at.present? %>
+                    <%= apt.scheduled_at
+                            .in_time_zone("Eastern Time (US & Canada)")
+                            .strftime("%b %d, %Y") %>
+                    <span class="text-xs text-gray-500 block">
+                      <%= apt.scheduled_at
+                              .in_time_zone("Eastern Time (US & Canada)")
+                              .strftime("%l:%M %p EST") %>
+                    </span>
+                  <% else %>
+                    <span>To be scheduled</span>
+                    <span class="text-xs text-gray-500 block">Date and time assigned by our team</span>
+                  <% end %>
                 </p>
               </div>
               <div>

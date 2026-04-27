@@ -1,7 +1,7 @@
 <%# Progress Bar %>
 <div class="max-w-2xl mx-auto mb-8">
   <div class="flex items-center justify-between">
-    <% steps = ["Service", "Vehicle", "Date & Time", "Your Details"] %>
+    <% steps = ["Service", "Vehicle", "Request Notes", "Your Details"] %>
     <% current = (params[:step] || "service") %>
     <% step_keys = ["service", "vehicle", "datetime", "details"] %>
 
@@ -136,101 +136,17 @@
       <% end %>
     </div>
 
-  <%# ── STEP 3: Date & Time ── %>
+  <%# ── STEP 3: Request Notes ── %>
   <% elsif step == "datetime" %>
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">Pick a Date & Time</h2>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Additional Notes</h2>
       <p class="text-gray-500 text-sm mb-6">
-        Choose your preferred appointment slot
-        <span class="text-blue-600 font-medium">(All times Eastern / EST)</span>
+        Share any details that will help our team.
+        <span class="text-blue-600 font-medium">Date and time will be assigned by an admin.</span>
       </p>
 
       <%= form_tag booking_update_path, method: :post do %>
         <input type="hidden" name="step" value="datetime">
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
-          <%# Date picker %>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Preferred Date
-            </label>
-            <input type="date"
-              name="booking_date"
-              id="booking_date"
-              min="<%= Date.current.strftime('%Y-%m-%d') %>"
-              max="<%= 3.months.from_now.strftime('%Y-%m-%d') %>"
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required>
-            <p class="mt-1 text-xs text-gray-400">Up to 3 months in advance</p>
-          </div>
-
-          <%# Time slot picker %>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Preferred Time <span class="text-gray-400">(EST)</span>
-            </label>
-            <select name="booking_time"
-              id="booking_time"
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              required>
-              <option value="">Select a time slot...</option>
-              <optgroup label="🌅 Morning">
-                <option value="08:00">8:00 AM</option>
-                <option value="08:30">8:30 AM</option>
-                <option value="09:00">9:00 AM</option>
-                <option value="09:30">9:30 AM</option>
-                <option value="10:00">10:00 AM</option>
-                <option value="10:30">10:30 AM</option>
-                <option value="11:00">11:00 AM</option>
-                <option value="11:30">11:30 AM</option>
-              </optgroup>
-              <optgroup label="☀️ Afternoon">
-                <option value="12:00">12:00 PM</option>
-                <option value="12:30">12:30 PM</option>
-                <option value="13:00">1:00 PM</option>
-                <option value="13:30">1:30 PM</option>
-                <option value="14:00">2:00 PM</option>
-                <option value="14:30">2:30 PM</option>
-                <option value="15:00">3:00 PM</option>
-                <option value="15:30">3:30 PM</option>
-                <option value="16:00">4:00 PM</option>
-                <option value="16:30">4:30 PM</option>
-              </optgroup>
-            </select>
-            <p class="mt-1 text-xs text-gray-400">
-              30 minute slots, subject to availability
-            </p>
-          </div>
-        </div>
-
-        <%# Friendly day indicator — shown after date selected %>
-        <div id="day_indicator" class="hidden mb-4">
-          <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3
-                      flex items-center space-x-3">
-            <span class="text-blue-600 text-lg">📅</span>
-            <div>
-              <p class="text-sm font-medium text-blue-900" id="day_display"></p>
-              <p class="text-xs text-blue-500">Eastern Time (EST)</p>
-            </div>
-          </div>
-        </div>
-
-        <%# Weekend warning %>
-        <div id="weekend_warning" class="hidden mb-4">
-          <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3
-                      flex items-center space-x-3">
-            <span class="text-yellow-500 text-lg">⚠️</span>
-            <p class="text-sm text-yellow-800">
-              We're closed on weekends. Please select a weekday.
-            </p>
-          </div>
-        </div>
-
-        <%# Hidden combined datetime field submitted to controller %>
-        <input type="hidden" name="scheduled_at" id="scheduled_at">
 
         <div class="mb-8">
           <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -244,74 +160,10 @@
         </div>
 
         <%= submit_tag "Continue →",
-              id: "datetime_submit",
               class: "w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300
                       disabled:cursor-not-allowed text-white font-semibold
                       py-3 px-4 rounded-lg transition cursor-pointer" %>
       <% end %>
-
-      <script>
-        const dateInput   = document.getElementById('booking_date');
-        const timeInput   = document.getElementById('booking_time');
-        const hiddenField = document.getElementById('scheduled_at');
-        const dayIndicator  = document.getElementById('day_indicator');
-        const dayDisplay    = document.getElementById('day_display');
-        const weekendWarn   = document.getElementById('weekend_warning');
-        const submitBtn     = document.getElementById('datetime_submit');
-
-        const DAYS   = ['Sunday','Monday','Tuesday','Wednesday',
-                         'Thursday','Friday','Saturday'];
-        const MONTHS = ['January','February','March','April','May','June',
-                         'July','August','September','October','November','December'];
-
-        function update() {
-          const dateVal = dateInput.value;
-          const timeVal = timeInput.value;
-
-          if (!dateVal) {
-            dayIndicator.classList.add('hidden');
-            weekendWarn.classList.add('hidden');
-            hiddenField.value = '';
-            submitBtn.disabled = true;
-            return;
-          }
-
-          // Parse date parts directly to avoid browser timezone shifts
-          const [year, month, day] = dateVal.split('-').map(Number);
-          const d = new Date(year, month - 1, day);
-          const dow = d.getDay(); // 0 = Sunday, 6 = Saturday
-          const isWeekend = dow === 0 || dow === 6;
-
-          // Show day name
-          dayIndicator.classList.remove('hidden');
-          dayDisplay.textContent =
-            `${DAYS[dow]}, ${MONTHS[month - 1]} ${day}, ${year}`;
-
-          // Weekend handling
-          weekendWarn.classList.toggle('hidden', !isWeekend);
-
-          if (isWeekend) {
-            hiddenField.value = '';
-            submitBtn.disabled = true;
-            return;
-          }
-
-          // Combine date + time into the hidden field
-          if (timeVal) {
-            hiddenField.value = `${dateVal}T${timeVal}:00`;
-            submitBtn.disabled = false;
-          } else {
-            hiddenField.value = '';
-            submitBtn.disabled = true;
-          }
-        }
-
-        // Disable submit on load until both fields filled
-        submitBtn.disabled = true;
-
-        dateInput.addEventListener('change', update);
-        timeInput.addEventListener('change', update);
-      </script>
     </div>
 
   <%# ── STEP 4: Your Details ── %>

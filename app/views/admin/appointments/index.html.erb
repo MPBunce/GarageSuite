@@ -64,16 +64,21 @@
               <%= apt.vehicle_display %>
             </td>
             <td class="px-5 py-4">
-              <p class="text-gray-900">
-                <%= apt.scheduled_at
-                        .in_time_zone("Eastern Time (US & Canada)")
-                        .strftime("%b %d, %Y") %>
-              </p>
-              <p class="text-xs text-gray-400">
-                <%= apt.scheduled_at
-                        .in_time_zone("Eastern Time (US & Canada)")
-                        .strftime("%l:%M %p EST") %>
-              </p>
+              <% if apt.scheduled_at.present? %>
+                <p class="text-gray-900">
+                  <%= apt.scheduled_at
+                          .in_time_zone("Eastern Time (US & Canada)")
+                          .strftime("%b %d, %Y") %>
+                </p>
+                <p class="text-xs text-gray-400">
+                  <%= apt.scheduled_at
+                          .in_time_zone("Eastern Time (US & Canada)")
+                          .strftime("%l:%M %p EST") %>
+                </p>
+              <% else %>
+                <p class="text-gray-900">Unscheduled</p>
+                <p class="text-xs text-gray-400">Set date/time in appointment details</p>
+              <% end %>
             </td>
             <td class="px-5 py-4">
               <span class="px-2 py-1 rounded-full text-xs font-medium

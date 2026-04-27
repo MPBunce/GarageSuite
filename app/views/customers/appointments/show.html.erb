@@ -45,13 +45,18 @@
 
       <div class="border-t border-gray-100 pt-5">
         <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">
-          Requested Date & Time
+          Appointment Schedule
         </p>
-        <p class="font-semibold text-gray-900">
-          <%= @appointment.scheduled_at
-                .in_time_zone("Eastern Time (US & Canada)")
-                .strftime("%A, %B %d, %Y at %l:%M %p EST") %>
-        </p>
+        <% if @appointment.scheduled_at.present? %>
+          <p class="font-semibold text-gray-900">
+            <%= @appointment.scheduled_at
+                  .in_time_zone("Eastern Time (US & Canada)")
+                  .strftime("%A, %B %d, %Y at %l:%M %p EST") %>
+          </p>
+        <% else %>
+          <p class="font-semibold text-gray-900">To be scheduled by our team</p>
+          <p class="text-sm text-gray-500 mt-1">We'll confirm your date and time soon</p>
+        <% end %>
       </div>
 
       <% if @appointment.customer_notes.present? %>

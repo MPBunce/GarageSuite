@@ -63,9 +63,9 @@
                   <%= apt.service.name %> — <%= apt.vehicle_display %>
                 </p>
                 <p class="text-xs text-gray-400 mt-1">
-                  📅 <%= apt.scheduled_at
-                              .in_time_zone("Eastern Time (US & Canada)")
-                              .strftime("%b %d at %l:%M %p EST") %>
+                  📅 <%= apt.scheduled_at.present? ?
+                          apt.scheduled_at.in_time_zone("Eastern Time (US & Canada)").strftime("%b %d at %l:%M %p EST") :
+                          "To be scheduled" %>
                 </p>
                 <% if apt.guest? %>
                   <span class="text-xs text-orange-500 font-medium">Guest booking</span>
@@ -111,9 +111,9 @@
                   <%= apt.service.name %> — <%= apt.vehicle_display %>
                 </p>
                 <p class="text-xs text-gray-400 mt-1">
-                  📅 <%= apt.scheduled_at
-                              .in_time_zone("Eastern Time (US & Canada)")
-                              .strftime("%b %d at %l:%M %p EST") %>
+                  📅 <%= apt.scheduled_at.present? ?
+                          apt.scheduled_at.in_time_zone("Eastern Time (US & Canada)").strftime("%b %d at %l:%M %p EST") :
+                          "To be scheduled" %>
                 </p>
               </div>
               <%= link_to "View →",
