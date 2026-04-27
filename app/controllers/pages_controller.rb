@@ -1,5 +1,7 @@
 class PagesController < ApplicationController
   def home
+    @services = Service.active.order(:name)
+
     # Redirect already logged in users to their dashboard
     if user_signed_in?
       if current_user.admin?

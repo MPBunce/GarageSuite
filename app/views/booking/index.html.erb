@@ -1,25 +1,26 @@
 <%# Progress Bar %>
 <div class="max-w-2xl mx-auto mb-8">
-  <div class="flex items-center justify-between">
-    <% steps = ["Service", "Vehicle", "Request Notes", "Your Details"] %>
-    <% current = (params[:step] || "service") %>
-    <% step_keys = ["service", "vehicle", "datetime", "details"] %>
+  <div class="flex items-start">
+    <% steps = @step_labels %>
+    <% current = @step %>
+    <% step_keys = @step_keys %>
+    <% current_index = step_keys.index(current) || 0 %>
 
     <% steps.each_with_index do |label, i| %>
-      <div class="flex items-center">
-        <div class="flex flex-col items-center">
+      <div class="flex items-start <%= i < steps.length - 1 ? 'flex-1' : '' %>">
+        <div class="flex flex-col items-center min-w-[4.5rem]">
           <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold
-            <%= step_keys.index(current).to_i >= i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' %>">
+            <%= current_index >= i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500' %>">
             <%= i + 1 %>
           </div>
-          <span class="text-xs mt-1 font-medium
-            <%= step_keys.index(current).to_i >= i ? 'text-blue-600' : 'text-gray-400' %>">
+          <span class="text-xs mt-1 font-medium text-center
+            <%= current_index >= i ? 'text-blue-600' : 'text-gray-400' %>">
             <%= label %>
           </span>
         </div>
         <% if i < steps.length - 1 %>
-          <div class="h-0.5 w-16 mx-2 mb-4
-            <%= step_keys.index(current).to_i > i ? 'bg-blue-600' : 'bg-gray-200' %>">
+          <div class="h-0.5 flex-1 mx-2 mt-4
+            <%= current_index > i ? 'bg-blue-600' : 'bg-gray-200' %>">
           </div>
         <% end %>
       </div>
@@ -29,7 +30,7 @@
 
 <%# Step Content %>
 <div class="max-w-2xl mx-auto">
-  <% step = params[:step] || "service" %>
+  <% step = @step %>
 
   <%# ── STEP 1: Service Selection ── %>
   <% if step == "service" %>

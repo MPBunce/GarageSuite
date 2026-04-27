@@ -15,6 +15,8 @@ class Service < ApplicationRecord
   scope :active, -> { where(active: true) }
 
   def formatted_price
+    return "Quote on request" if price.blank?
+
     "$#{'%.2f' % price}"
   end
 

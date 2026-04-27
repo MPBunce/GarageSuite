@@ -1,9 +1,20 @@
 class BookingController < ApplicationController
-  STEPS = %w[service vehicle datetime details].freeze
+  STEP_THREE_ENABLED = false
+  STEPS_WITH_REQUEST_NOTES = %w[service vehicle datetime details].freeze
+  STEPS_WITHOUT_REQUEST_NOTES = %w[service vehicle details].freeze
 
   def index
     session[:booking] ||= {}
-    @step = params[:step] || "service"
+    @step = normalize_step(params[:step])
+    @step_keys = booking_steps
+    @step_labels = @step_keys.map do |key|
+      {
+        "service" => "Service",
+        "vehicle" => "Vehicle",
+        "datetime" => "Request Notes",
+        "details" => "Your Details"
+      }.fetch(key)
+    end
 
     case @step
     when "service"
@@ -19,7 +30,7 @@ class BookingController < ApplicationController
 
   def update
     session[:booking] ||= {}
-    current_step = params[:step]
+    current_step = normalize_step(params[:step])
     session[:booking].merge!(booking_params_for(current_step))
     next_step = next_step_after(current_step)
 
@@ -95,10 +106,25 @@ class BookingController < ApplicationController
 
   private
 
+  def step_three_enabled?
+    STEP_THREE_ENABLED
+  end
+
+  def booking_steps
+    step_three_enabled? ? STEPS_WITH_REQUEST_NOTES : STEPS_WITHOUT_REQUEST_NOTES
+  end
+
+  def normalize_step(step)
+    value = step.to_s
+    value = booking_steps.first if value.blank?
+    value = "details" if !step_three_enabled? && value == "datetime"
+    booking_steps.include?(value) ? value : booking_steps.first
+  end
+
   def next_step_after(current_step)
-    current_index = STEPS.index(current_step)
-    return "confirm" if current_index.nil? || current_index >= STEPS.length - 1
-    STEPS[current_index + 1]
+    current_index = booking_steps.index(current_step)
+    return "confirm" if current_index.nil? || current_index >= booking_steps.length - 1
+    booking_steps[current_index + 1]
   end
 
   def booking_params_for(step)
