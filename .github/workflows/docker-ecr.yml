@@ -27,20 +27,3 @@ jobs:
         run: |
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/aems:latest"
           docker push $IMAGE_URI
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-push   # waits for image to be pushed
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - name: Force ECS redeploy
-        run: |
-          aws ecs update-service \
-            --cluster your-cluster-name \
-            --service your-service-name \
-            --force-new-deployment
