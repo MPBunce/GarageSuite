@@ -7,10 +7,10 @@ class Service < ApplicationRecord
                                  only_integer: true,
                                  greater_than: 0
                                }
-  validates :price,            presence: true,
-                               numericality: {
+  validates :price,            numericality: {
                                  greater_than_or_equal_to: 0
-                               }
+                               },
+                               allow_blank: true
 
   scope :active, -> { where(active: true) }
 
