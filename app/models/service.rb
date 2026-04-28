@@ -15,9 +15,13 @@ class Service < ApplicationRecord
   scope :active, -> { where(active: true) }
 
   def formatted_price
-    return "Price available on request" if price.blank? || price.to_d <= 0
+    return "Price available on request" if request_pricing?
 
     "$#{'%.2f' % price}"
+  end
+
+  def request_pricing?
+    price.blank? || price.to_d <= 0
   end
 
   def formatted_duration
