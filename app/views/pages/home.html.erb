@@ -37,7 +37,7 @@
     <% @services.each do |service| %>
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
         <h3 class="text-lg font-semibold text-gray-900 mb-2"><%= service.name %></h3>
-        <p class="text-gray-500 text-sm mb-4"><%= service.description %></p>
+        <p class="text-gray-500 text-sm mb-4 line-clamp-2"><%= service.description %></p>
         <div class="flex items-center justify-between">
           <% if service.request_pricing? %>
             <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-200">

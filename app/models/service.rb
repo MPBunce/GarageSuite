@@ -5,8 +5,10 @@ class Service < ApplicationRecord
   validates :duration_minutes, presence: true,
                                numericality: {
                                  only_integer: true,
-                                 greater_than: 0
+                                 greater_than: 0,
+                                 less_than_or_equal_to: 240
                                }
+  validate :duration_minutes_must_be_15_min_increment
   validates :price,            numericality: {
                                  greater_than_or_equal_to: 0
                                },
@@ -31,6 +33,16 @@ class Service < ApplicationRecord
       hours = duration_minutes / 60
       mins  = duration_minutes % 60
       mins > 0 ? "#{hours}hr #{mins}mins" : "#{hours}hr"
+    end
+  end
+
+  private
+
+  def duration_minutes_must_be_15_min_increment
+    return if duration_minutes.blank?
+    
+    if duration_minutes % 15 != 0
+      errors.add(:duration_minutes, "must be in 15 minute increments")
     end
   end
 end

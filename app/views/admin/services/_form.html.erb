@@ -34,10 +34,11 @@
     <%= f.number_field :duration_minutes,
           placeholder: "e.g. 30",
           min: 15,
+          max: 240,
           step: 15,
           class: "w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
                   focus:outline-none focus:ring-2 focus:ring-blue-500" %>
-    <p class="mt-1 text-xs text-gray-400">In 15 minute increments</p>
+    <p class="mt-1 text-xs text-gray-400">15 minute increments, max 4 hours</p>
   </div>
   <div>
     <%= f.label :price,
