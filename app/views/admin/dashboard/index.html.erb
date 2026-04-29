@@ -23,7 +23,7 @@
   </div>
   <div class="bg-white rounded-xl border border-gray-200 p-5">
     <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Customers</p>
-    <p class="text-3xl font-bold text-blue-600">
+    <p class="text-3xl font-bold text-orange-600">
       <%= @total_customers %>
     </p>
     <p class="text-sm text-gray-500 mt-1">Registered accounts</p>
@@ -46,7 +46,7 @@
         🟡 Pending Approval
       </h2>
       <%= link_to "View all →", admin_appointments_path,
-            class: "text-sm text-blue-600 hover:text-blue-700" %>
+            class: "text-sm text-orange-600 hover:text-orange-700" %>
     </div>
 
     <% if @pending_appointments.any? %>
@@ -73,7 +73,7 @@
               </div>
               <%= link_to "Review →",
                     admin_appointment_path(apt),
-                    class: "text-sm text-blue-600 hover:text-blue-700
+                    class: "text-sm text-orange-600 hover:text-orange-700
                             font-medium shrink-0 ml-4" %>
             </div>
           </div>
@@ -94,7 +94,7 @@
         🟢 Upcoming Confirmed
       </h2>
       <%= link_to "View all →", admin_appointments_path,
-            class: "text-sm text-blue-600 hover:text-blue-700" %>
+            class: "text-sm text-orange-600 hover:text-orange-700" %>
     </div>
 
     <% if @confirmed_appointments.any? %>
@@ -118,7 +118,7 @@
               </div>
               <%= link_to "View →",
                     admin_appointment_path(apt),
-                    class: "text-sm text-blue-600 hover:text-blue-700
+                    class: "text-sm text-orange-600 hover:text-orange-700
                             font-medium shrink-0 ml-4" %>
             </div>
           </div>

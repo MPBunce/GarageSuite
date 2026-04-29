@@ -4,7 +4,7 @@
     <p class="text-gray-500 text-sm mt-1">Track and manage your bookings</p>
   </div>
   <%= link_to "📅 Book New Appointment", booking_path,
-        class: "bg-blue-600 hover:bg-blue-700 text-white font-medium
+        class: "bg-orange-600 hover:bg-orange-700 text-white font-medium
                 px-4 py-2.5 rounded-lg transition text-sm" %>
 </div>
 
@@ -78,8 +78,8 @@
           <%# Actions %>
           <div class="ml-4 flex flex-col space-y-2">
             <%= link_to "View", customer_appointment_path(apt),
-                  class: "text-center text-sm text-blue-600 hover:text-blue-700
-                          font-medium border border-blue-200 hover:border-blue-400
+                  class: "text-center text-sm text-orange-600 hover:text-orange-700
+                          font-medium border border-orange-200 hover:border-orange-400
                           px-3 py-1.5 rounded-lg transition" %>
             <% if apt.pending? %>
               <%= button_to "Cancel",
@@ -103,7 +103,7 @@
       Book your first appointment and we'll take care of the rest
     </p>
     <%= link_to "Book an Appointment", booking_path,
-          class: "bg-blue-600 hover:bg-blue-700 text-white font-medium
+          class: "bg-orange-600 hover:bg-orange-700 text-white font-medium
                   px-6 py-2.5 rounded-lg transition" %>
   </div>
 <% end %>

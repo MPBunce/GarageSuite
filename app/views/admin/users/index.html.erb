@@ -30,8 +30,8 @@
           <tr class="hover:bg-gray-50 transition">
             <td class="px-5 py-4">
               <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center
-                            justify-center text-blue-600 font-semibold text-xs">
+                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center
+                            justify-center text-orange-600 font-semibold text-xs">
                   <%= user.first_name.first.upcase %>
                 </div>
                 <p class="font-medium text-gray-900"><%= user.full_name %></p>
@@ -42,7 +42,7 @@
               <% user.roles.each do |role| %>
                 <span class="px-2 py-0.5 rounded-full text-xs font-medium
                   <%= role.name == 'admin' ?
-                        'bg-blue-100 text-blue-700' :
+                        'bg-orange-100 text-orange-700' :
                         'bg-green-100 text-green-700' %>">
                   <%= role.name.capitalize %>
                 </span>
@@ -62,7 +62,7 @@
             <td class="px-5 py-4 text-right">
               <%= link_to "View →",
                     admin_user_path(user),
-                    class: "text-blue-600 hover:text-blue-700 font-medium" %>
+                    class: "text-orange-600 hover:text-orange-700 font-medium" %>
             </td>
           </tr>
         <% end %>

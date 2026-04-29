@@ -9,12 +9,14 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="h-full">
+  <body class="h-full min-h-full flex flex-col">
     <%= render "shared/navigation" %>
     <%= render "shared/flash_messages" %>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
       <%= yield %>
     </main>
+
+    <%= render "shared/footer" %>
   </body>
 </html>

@@ -1,0 +1,65 @@
+<%
+  image_files = Dir.children(Rails.root.join("app/assets/images"))
+    .select { |file| file.match?(/\.(png|jpe?g|webp|gif)\z/i) }
+    .sort
+  marquee_images = image_files.map do |file|
+    {
+      file: file,
+      title: File.basename(file, File.extname(file)).tr("_", " ")
+    }
+  end
+%>
+
+<section class="footer-marquee border-y border-white/10 bg-black py-3" style="background-color: #000; border-color: rgba(255, 255, 255, 0.1);" aria-label="Tire and brand gallery">
+  <div class="relative overflow-hidden px-6 sm:px-8 lg:px-10">
+    <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-black to-transparent sm:w-16"></div>
+    <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-black to-transparent sm:w-16"></div>
+
+    <% if marquee_images.any? %>
+      <div class="footer-marquee-motion">
+        <% 2.times do %>
+          <div class="footer-marquee-track flex w-max items-center gap-4 sm:gap-6" aria-hidden="true">
+            <% marquee_images.each do |image| %>
+              <figure class="shrink-0">
+                <%= image_tag image[:file], alt: "#{image[:title]} promotional poster", class: "footer-marquee-image h-14 w-auto max-w-none sm:h-16 lg:h-20" %>
+              </figure>
+            <% end %>
+            <div class="footer-marquee-spacer w-4 shrink-0 sm:w-6" aria-hidden="true"></div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="px-4 text-sm text-slate-400 sm:px-6 lg:px-8">Add image files to app/assets/images to populate the footer gallery.</div>
+    <% end %>
+  </div>
+</section>
+
+<style>
+  @keyframes footer-marquee-scroll {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+
+  .footer-marquee-motion {
+    display: flex;
+    width: max-content;
+    animation: footer-marquee-scroll 90s linear infinite;
+    will-change: transform;
+  }
+
+  .footer-marquee-track {
+    flex-shrink: 0;
+  }
+
+  .footer-marquee:hover .footer-marquee-motion,
+  .footer-marquee:focus-within .footer-marquee-motion {
+    animation-play-state: paused;
+  }
+
+  .footer-marquee-image {
+    display: block;
+    object-fit: contain;
+    object-position: center;
+    backface-visibility: hidden;
+  }
+</style>

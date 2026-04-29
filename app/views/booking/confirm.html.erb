@@ -13,7 +13,7 @@
         <p class="font-semibold text-gray-900"><%= @service&.name %></p>
         <p class="text-sm text-gray-500"><%= @service&.formatted_duration %></p>
       </div>
-      <span class="text-blue-600 font-bold text-lg"><%= @service&.formatted_price %></span>
+      <span class="text-orange-600 font-bold text-lg"><%= @service&.formatted_price %></span>
     </div>
 
     <%# Vehicle %>
@@ -81,7 +81,7 @@
             class: "flex-1 text-center border border-gray-300 hover:border-gray-400
                     text-gray-700 font-semibold py-3 px-4 rounded-lg transition" %>
       <%= submit_tag "Confirm Booking",
-            class: "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold
+            class: "flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold
                     py-3 px-4 rounded-lg transition cursor-pointer" %>
     </div>
   <% end %>

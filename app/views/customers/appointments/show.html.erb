@@ -31,7 +31,7 @@
           <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Service</p>
           <p class="font-semibold text-gray-900"><%= @appointment.service.name %></p>
           <p class="text-sm text-gray-500"><%= @appointment.service.formatted_duration %></p>
-          <p class="text-sm text-blue-600 font-medium">
+          <p class="text-sm text-orange-600 font-medium">
             <%= @appointment.service.formatted_price %>
           </p>
         </div>
@@ -67,11 +67,11 @@
       <% end %>
 
       <% if @appointment.admin_notes.present? %>
-        <div class="border-t border-gray-100 pt-5 bg-blue-50 rounded-lg p-4">
-          <p class="text-xs text-blue-400 uppercase tracking-wide mb-1">
+        <div class="border-t border-gray-100 pt-5 bg-orange-50 rounded-lg p-4">
+          <p class="text-xs text-orange-400 uppercase tracking-wide mb-1">
             Note from our team
           </p>
-          <p class="text-blue-800 text-sm"><%= @appointment.admin_notes %></p>
+          <p class="text-orange-800 text-sm"><%= @appointment.admin_notes %></p>
         </div>
       <% end %>
 
