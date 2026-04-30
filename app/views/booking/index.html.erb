@@ -119,12 +119,14 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Make</label>
             <input type="text" name="guest_vehicle_make" placeholder="e.g. Toyota"
+              required
               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
                      focus:outline-none focus:ring-2 focus:ring-orange-500">
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Model</label>
             <input type="text" name="guest_vehicle_model" placeholder="e.g. Camry"
+              required
               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
                      focus:outline-none focus:ring-2 focus:ring-orange-500">
           </div>
@@ -135,6 +137,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
             <input type="number" name="guest_vehicle_year" placeholder="e.g. 2020"
               min="1990" max="<%= Date.current.year + 1 %>"
+              required
               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
                      focus:outline-none focus:ring-2 focus:ring-orange-500">
           </div>
@@ -155,17 +158,48 @@
       <% end %>
     </div>
 
-  <%# ── STEP 3: Request Notes ── %>
+  <%# ── STEP 3: Date & Time ── %>
   <% elsif step == "datetime" %>
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">Additional Notes</h2>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Choose Date & Time</h2>
       <p class="text-gray-500 text-sm mb-6">
-        Share any details that will help our team.
-        <span class="text-orange-600 font-medium">Date and time will be assigned by an admin.</span>
+        Pick your preferred appointment date and time.
       </p>
 
       <%= form_tag booking_update_path, method: :post do %>
         <input type="hidden" name="step" value="datetime">
+
+        <% scheduled_at_value = session.dig(:booking, "scheduled_at") %>
+        <% parsed_scheduled_at = begin
+             Time.zone.parse(scheduled_at_value.to_s) if scheduled_at_value.present?
+           rescue ArgumentError, TypeError
+             nil
+           end %>
+        <% scheduled_date_value = parsed_scheduled_at&.strftime("%Y-%m-%d") %>
+        <% scheduled_time_value = parsed_scheduled_at&.strftime("%H:%M") %>
+
+        <div class="grid grid-cols-2 gap-4 mb-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Preferred Date
+            </label>
+            <input type="date" name="scheduled_date"
+              value="<%= scheduled_date_value %>"
+              required
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Preferred Time
+            </label>
+            <input type="time" name="scheduled_time"
+              value="<%= scheduled_time_value %>"
+              required
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
+        </div>
 
         <div class="mb-8">
           <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -175,6 +209,7 @@
             placeholder="Any specific concerns or requests..."
             class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
                    focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none">
+<%= session.dig(:booking, "customer_notes") %>
           </textarea>
         </div>
 

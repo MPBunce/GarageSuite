@@ -32,8 +32,20 @@
 
     <div class="pb-4 border-b border-gray-100 mb-4">
       <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Scheduling</p>
-      <p class="font-semibold text-gray-900">Date and time assigned by our team</p>
-      <p class="text-xs text-gray-400 mt-1">We'll confirm your exact appointment slot after review</p>
+      <% if AppSetting.enabled?(:public_booking_enabled) && @booking["scheduled_at"].present? %>
+        <% parsed_scheduled_at = begin
+             Time.zone.parse(@booking["scheduled_at"].to_s)
+           rescue ArgumentError, TypeError
+             nil
+           end %>
+        <p class="font-semibold text-gray-900">
+          <%= parsed_scheduled_at ? l(parsed_scheduled_at, format: :long) : @booking["scheduled_at"] %>
+        </p>
+        <p class="text-xs text-gray-400 mt-1">Requested by customer and pending confirmation</p>
+      <% else %>
+        <p class="font-semibold text-gray-900">Date and time assigned by our team</p>
+        <p class="text-xs text-gray-400 mt-1">We'll confirm your exact appointment slot after review</p>
+      <% end %>
     </div>
 
     <%# Contact %>

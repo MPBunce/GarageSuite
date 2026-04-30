@@ -1,7 +1,5 @@
 class BookingController < ApplicationController
-  BOOKING_STEPS = %w[service vehicle details].freeze
-
-  before_action :ensure_public_booking_enabled!, only: [:index, :update, :confirm, :create]
+  BASE_BOOKING_STEPS = %w[service vehicle details].freeze
 
   def index
     session[:booking] ||= {}
@@ -12,7 +10,7 @@ class BookingController < ApplicationController
       {
         "service" => "Service",
         "vehicle" => "Vehicle",
-        "datetime" => "Request Notes",
+        "datetime" => "Date & Time",
         "details" => "Your Details"
       }.fetch(key)
     end
@@ -108,7 +106,11 @@ class BookingController < ApplicationController
   private
 
   def booking_steps
-    BOOKING_STEPS
+    if AppSetting.enabled?(:public_booking_enabled)
+      ["service", "vehicle", "datetime", "details"]
+    else
+      BASE_BOOKING_STEPS
+    end
   end
 
   def normalize_step(step)
@@ -138,7 +140,20 @@ class BookingController < ApplicationController
       ).to_h
 
     when "datetime"
-      params.permit(:customer_notes).to_h
+      permitted = params.permit(:scheduled_date, :scheduled_time, :customer_notes).to_h
+      date = permitted.delete("scheduled_date")
+      time = permitted.delete("scheduled_time")
+
+      if date.present? && time.present?
+        begin
+          scheduled_at = Time.zone.parse("#{date} #{time}")
+          permitted["scheduled_at"] = scheduled_at if scheduled_at.present?
+        rescue ArgumentError, TypeError
+          # Keep value unset; the next step can prompt the user again.
+        end
+      end
+
+      permitted
 
     when "details"
       params.permit(
@@ -226,12 +241,6 @@ class BookingController < ApplicationController
       Rails.logger.warn "Could not save vehicle for user #{user.id}: #{vehicle.errors.full_messages.join(', ')}"
       nil
     end
-  end
-
-  def ensure_public_booking_enabled!
-    return if AppSetting.enabled?(:public_booking_enabled)
-
-    redirect_to root_path, alert: "Online booking is currently unavailable."
   end
 
 end

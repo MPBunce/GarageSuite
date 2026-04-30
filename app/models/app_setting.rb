@@ -13,7 +13,7 @@ class AppSetting < ApplicationRecord
       {
         key: "public_booking_enabled",
         label: "Public booking enabled",
-        description: "Allow visitors to start the online booking flow without signing in.",
+        description: "Allow public customers to choose a preferred date and time while booking. When off, staff assign scheduling.",
         type: :boolean,
         default: true
       },

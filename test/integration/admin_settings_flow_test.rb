@@ -36,11 +36,20 @@ class AdminSettingsFlowTest < ActionDispatch::IntegrationTest
     assert_equal "Auto Enterprise Plus", AppSetting.value(:site_name)
   end
 
-  test "public booking redirects home when disabled" do
+  test "public booking setting controls datetime step visibility" do
     AppSetting.update_settings!("public_booking_enabled" => "0")
 
-    get booking_path
+    get booking_path(step: "datetime")
 
-    assert_redirected_to root_path
+    assert_response :success
+    assert_includes response.body, "Choose a Service"
+    assert_not_includes response.body, "Choose Date & Time"
+
+    AppSetting.update_settings!("public_booking_enabled" => "1")
+
+    get booking_path(step: "datetime")
+
+    assert_response :success
+    assert_includes response.body, "Choose Date & Time"
   end
 end
