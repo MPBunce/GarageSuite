@@ -7,6 +7,27 @@ class AppSetting < ApplicationRecord
         description: "Displayed in the browser title and primary navigation brand.",
         type: :string,
         default: "Auto Enterprise"
+      },
+      {
+        key: "homepage_description",
+        label: "Homepage description",
+        description: "Displayed in the hero section on the public homepage.",
+        type: :string,
+        default: "Professional automotive services. Book your appointment online and let our team take care of the rest."
+      },
+      {
+        key: "contact_phone",
+        label: "Contact phone",
+        description: "Displayed in the public contact section on the homepage.",
+        type: :string,
+        default: "(555) 123-4567"
+      },
+      {
+        key: "contact_email",
+        label: "Contact email",
+        description: "Displayed in the public contact section on the homepage.",
+        type: :string,
+        default: "service@autoenterprise.com"
       }
     ],
     "Operations" => [
