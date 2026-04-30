@@ -5,6 +5,14 @@
   </p>
 </div>
 
+<% if @show_pending_warning %>
+  <div class="mb-6 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800">
+    Pending appointments are at <strong><%= @pending_appointments.count %></strong>,
+    which is at or above the warning threshold of
+    <strong><%= @pending_warning_threshold %></strong>.
+  </div>
+<% end %>
+
 <%# Stats Row %>
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
   <div class="bg-white rounded-xl border border-gray-200 p-5">
@@ -141,6 +149,9 @@
   <%= link_to "🔧 Manage Services", admin_services_path,
         class: "bg-gray-800 hover:bg-gray-900 text-white font-medium
                 px-5 py-2.5 rounded-lg transition text-sm" %>
+  <%= link_to "⚙️ Settings", admin_settings_path,
+    class: "bg-gray-800 hover:bg-gray-900 text-white font-medium
+        px-5 py-2.5 rounded-lg transition text-sm" %>
   <%= link_to "👥 View Customers", admin_users_path,
         class: "border border-gray-300 hover:border-gray-400 text-gray-700
                 font-medium px-5 py-2.5 rounded-lg transition text-sm" %>

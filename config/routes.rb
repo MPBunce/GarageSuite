@@ -36,6 +36,7 @@ Rails.application.routes.draw do
     get "/dashboard", to: "dashboard#index"
     resources :appointments, only: [:index, :show, :update, :destroy]
     resources :services
+    resource :settings, only: [:show, :update]
     resources :users, only: [:index, :show, :update, :destroy]
   end
 end

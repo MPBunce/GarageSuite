@@ -1,7 +1,7 @@
 <%# Hero Section %>
 <div class="text-center py-20">
   <h1 class="text-5xl font-bold text-gray-900 mb-4">
-    🔧 Auto Enterprise
+    🔧 <%= site_name %>
   </h1>
   <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
     Professional automotive services. Book your appointment online
@@ -20,9 +20,15 @@
     <% end %>
   <% else %>
     <div class="flex justify-center space-x-4">
-      <%= link_to "Book an Appointment",
-            booking_path,
-            class: "bg-orange-600 hover:bg-orange-700 text-white font-semibold px-8 py-3 rounded-lg text-lg transition" %>
+      <% if AppSetting.enabled?(:public_booking_enabled) %>
+        <%= link_to "Book an Appointment",
+              booking_path,
+              class: "bg-orange-600 hover:bg-orange-700 text-white font-semibold px-8 py-3 rounded-lg text-lg transition" %>
+      <% else %>
+        <span class="bg-gray-200 text-gray-500 font-semibold px-8 py-3 rounded-lg text-lg">
+          Online Booking Unavailable
+        </span>
+      <% end %>
       <%= link_to "Sign In",
             new_user_session_path,
             class: "border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-8 py-3 rounded-lg text-lg transition" %>

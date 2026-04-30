@@ -233,65 +233,69 @@
                      focus:outline-none focus:ring-2 focus:ring-orange-500">
           </div>
 
-          <%# Optional account creation %>
-          <div class="border-t border-gray-100 pt-6 mb-6">
+          <% if @account_creation_enabled %>
+            <%# Optional account creation %>
+            <div class="border-t border-gray-100 pt-6 mb-6">
 
-            <%# Hidden field ensures value "0" is always submitted if checkbox unticked %>
-            <input type="hidden" name="create_account" value="0">
+              <%# Hidden field ensures value "0" is always submitted if checkbox unticked %>
+              <input type="hidden" name="create_account" value="0">
 
-            <label class="flex items-start space-x-3 cursor-pointer">
-              <input type="checkbox"
-                id="create_account_toggle"
-                name="create_account"
-                value="1"
-                class="mt-0.5 w-4 h-4 text-orange-600 border-gray-300 rounded">
-              <div>
-                <p class="text-sm font-medium text-gray-800">
-                  Create a free account
-                  <span class="text-gray-400 font-normal">(optional)</span>
-                </p>
-                <p class="text-xs text-gray-400 mt-0.5">
-                  Track this and future appointments online
-                </p>
-              </div>
-            </label>
+              <label class="flex items-start space-x-3 cursor-pointer">
+                <input type="checkbox"
+                  id="create_account_toggle"
+                  name="create_account"
+                  value="1"
+                  class="mt-0.5 w-4 h-4 text-orange-600 border-gray-300 rounded">
+                <div>
+                  <p class="text-sm font-medium text-gray-800">
+                    Create a free account
+                    <span class="text-gray-400 font-normal">(optional)</span>
+                  </p>
+                  <p class="text-xs text-gray-400 mt-0.5">
+                    Track this and future appointments online
+                  </p>
+                </div>
+              </label>
 
-            <div id="account_fields" class="hidden mt-4 space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <input type="password"
-                  name="account_password"
-                  placeholder="Min. 6 characters"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
-                        focus:outline-none focus:ring-2 focus:ring-orange-500">
+              <div id="account_fields" class="hidden mt-4 space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
+                  <input type="password"
+                    name="account_password"
+                    placeholder="Min. 6 characters"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                          focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm Password
+                  </label>
+                  <input type="password"
+                    name="account_password_confirmation"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                          focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm Password
-                </label>
-                <input type="password"
-                  name="account_password_confirmation"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
-                        focus:outline-none focus:ring-2 focus:ring-orange-500">
-              </div>
+
             </div>
-
-          </div>
+          <% end %>
 
           <%= submit_tag "Review Booking →",
                 class: "w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold
                         py-3 px-4 rounded-lg transition cursor-pointer" %>
         <% end %>
 
-        <script>
-          document.getElementById('create_account_toggle')
-            .addEventListener('change', function() {
-              document.getElementById('account_fields')
-                .classList.toggle('hidden', !this.checked);
-            });
-        </script>
+        <% if @account_creation_enabled %>
+          <script>
+            document.getElementById('create_account_toggle')
+              .addEventListener('change', function() {
+                document.getElementById('account_fields')
+                  .classList.toggle('hidden', !this.checked);
+              });
+          </script>
+        <% end %>
       <% end %>
     </div>
   <% end %>

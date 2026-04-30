@@ -1,12 +1,13 @@
 class BookingController < ApplicationController
-  STEP_THREE_ENABLED = false
-  STEPS_WITH_REQUEST_NOTES = %w[service vehicle datetime details].freeze
-  STEPS_WITHOUT_REQUEST_NOTES = %w[service vehicle details].freeze
+  BOOKING_STEPS = %w[service vehicle details].freeze
+
+  before_action :ensure_public_booking_enabled!, only: [:index, :update, :confirm, :create]
 
   def index
     session[:booking] ||= {}
     @step = normalize_step(params[:step])
     @step_keys = booking_steps
+    @account_creation_enabled = true
     @step_labels = @step_keys.map do |key|
       {
         "service" => "Service",
@@ -106,18 +107,13 @@ class BookingController < ApplicationController
 
   private
 
-  def step_three_enabled?
-    STEP_THREE_ENABLED
-  end
-
   def booking_steps
-    step_three_enabled? ? STEPS_WITH_REQUEST_NOTES : STEPS_WITHOUT_REQUEST_NOTES
+    BOOKING_STEPS
   end
 
   def normalize_step(step)
     value = step.to_s
     value = booking_steps.first if value.blank?
-    value = "details" if !step_three_enabled? && value == "datetime"
     booking_steps.include?(value) ? value : booking_steps.first
   end
 
@@ -230,6 +226,12 @@ class BookingController < ApplicationController
       Rails.logger.warn "Could not save vehicle for user #{user.id}: #{vehicle.errors.full_messages.join(', ')}"
       nil
     end
+  end
+
+  def ensure_public_booking_enabled!
+    return if AppSetting.enabled?(:public_booking_enabled)
+
+    redirect_to root_path, alert: "Online booking is currently unavailable."
   end
 
 end
