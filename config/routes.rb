@@ -8,6 +8,9 @@ Rails.application.routes.draw do
     match '(*any)', to: redirect { |params, req| "https://www.#{AppSetting.value("root_url")}#{req.path}" }, via: :all
   end
 
+  #robots.txt routes
+  get '/robots.txt', to: 'pages#robots'
+
   # Public
   root "pages#home"
   get "/up", to: proc { [200, {}, ["OK"]] }

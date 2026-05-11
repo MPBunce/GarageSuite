@@ -167,7 +167,6 @@ GEM
     marcel (1.1.0)
     matrix (0.4.3)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.9)
     minitest (6.0.3)
       drb (~> 2.0)
       prism (~> 1.5)
@@ -187,9 +186,6 @@ GEM
       net-protocol
     net-ssh (7.3.2)
     nio4r (2.7.5)
-    nokogiri (1.19.2)
-      mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
     nokogiri (1.19.2-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.19.2-aarch64-linux-musl)
@@ -322,6 +318,8 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
+    sitemap_generator (7.0.1)
+      builder (~> 3.0)
     solid_cable (3.0.12)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -396,7 +394,6 @@ PLATFORMS
   arm-linux-gnu
   arm-linux-musl
   arm64-darwin-24
-  ruby
   x86_64-linux
   x86_64-linux-gnu
   x86_64-linux-musl
@@ -418,6 +415,7 @@ DEPENDENCIES
   rails (~> 8.0.4)
   rubocop-rails-omakase
   selenium-webdriver
+  sitemap_generator
   solid_cable
   solid_cache
   solid_queue

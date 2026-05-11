@@ -1,1 +1,4 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+User-agent: *
+Disallow: /admin
+Disallow: /dashboard
+Sitemap: https://www.2for2tires.ca/sitemap.xml
