@@ -28,6 +28,13 @@ class AppSetting < ApplicationRecord
         description: "Displayed in the public contact section on the homepage.",
         type: :string,
         default: "service@autoenterprise.com"
+      },
+      {
+        key: "root_url",
+        label: "Root URL",
+        description: "The root domain used for www redirect (e.g. example.ca).",
+        type: :string,
+        default: "example.ca"
       }
     ],
     "Operations" => [

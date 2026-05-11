@@ -4,6 +4,10 @@ Rails.application.routes.draw do
     sessions:      "users/sessions"
   }
 
+  constraints lambda { |req| req.host == AppSetting.value("root_url") } do
+    match '(*any)', to: redirect { |params, req| "https://www.#{AppSetting.value("root_url")}#{req.path}" }, via: :all
+  end
+
   # Public
   root "pages#home"
   get "/up", to: proc { [200, {}, ["OK"]] }
