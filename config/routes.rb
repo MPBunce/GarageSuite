@@ -11,6 +11,11 @@ Rails.application.routes.draw do
   #robots.txt routes
   get '/robots.txt', to: 'pages#robots'
 
+  #Sitemap Refresh
+  namespace :admin do
+    post 'sitemap/rebuild', to: 'sitemaps#rebuild'
+  end
+  
   # Public
   root "pages#home"
   get "/up", to: proc { [200, {}, ["OK"]] }
