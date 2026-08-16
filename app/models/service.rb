@@ -40,7 +40,7 @@ class Service < ApplicationRecord
 
   def duration_minutes_must_be_15_min_increment
     return if duration_minutes.blank?
-    
+
     if duration_minutes % 15 != 0
       errors.add(:duration_minutes, "must be in 15 minute increments")
     end

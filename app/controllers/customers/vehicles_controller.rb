@@ -1,5 +1,5 @@
 class Customers::VehiclesController < Customers::BaseController
-  before_action :set_vehicle, only: [:show, :destroy]
+  before_action :set_vehicle, only: [ :show, :destroy ]
 
   def index
     @vehicles = current_user.vehicles.active

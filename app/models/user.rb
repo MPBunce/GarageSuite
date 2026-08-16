@@ -16,7 +16,7 @@ class User < ApplicationRecord
   validates :last_name,  presence: true
   validates :phone_number, format: { with: /\A\+?[\d\s\-().]{7,20}\z/ },
                            allow_blank: true
-           
+
   before_save :downcase_email
 
   def assign_role(role_name)

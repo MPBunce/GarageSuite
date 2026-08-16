@@ -1,7 +1,7 @@
 class Role < ApplicationRecord
   CUSTOMER = "customer".freeze
   ADMIN    = "admin".freeze
-  ALL      = [CUSTOMER, ADMIN].freeze
+  ALL      = [ CUSTOMER, ADMIN ].freeze
 
   has_many :user_roles, dependent: :destroy
   has_many :users, through: :user_roles

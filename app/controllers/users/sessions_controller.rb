@@ -1,5 +1,4 @@
 class Users::SessionsController < Devise::SessionsController
-
   private
 
   # Override where Devise redirects after login

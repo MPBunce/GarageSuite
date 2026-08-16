@@ -107,7 +107,7 @@ class BookingController < ApplicationController
 
   def booking_steps
     if AppSetting.enabled?(:public_booking_enabled)
-      ["service", "vehicle", "datetime", "details"]
+      [ "service", "vehicle", "datetime", "details" ]
     else
       BASE_BOOKING_STEPS
     end
@@ -242,5 +242,4 @@ class BookingController < ApplicationController
       nil
     end
   end
-
 end

@@ -11,6 +11,6 @@ class PagesController < ApplicationController
   end
 
   def robots
-    render plain: "User-agent: *\nDisallow: /admin\nDisallow: /dashboard\nSitemap: https://www.#{AppSetting.value('root_url')}/sitemap.xml", content_type: 'text/plain'
+    render plain: "User-agent: *\nDisallow: /admin\nDisallow: /dashboard\nSitemap: https://www.#{AppSetting.value('root_url')}/sitemap.xml", content_type: "text/plain"
   end
 end

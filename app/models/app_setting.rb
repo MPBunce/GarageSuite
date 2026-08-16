@@ -161,7 +161,7 @@ class AppSetting < ApplicationRecord
   def value_matches_type
     case value_type
     when "boolean"
-      errors.add(:value_boolean, "must be true or false") unless [true, false].include?(value_boolean)
+      errors.add(:value_boolean, "must be true or false") unless [ true, false ].include?(value_boolean)
     when "integer"
       errors.add(:value_integer, "must be present") if value_integer.nil?
     when "string"

@@ -1,5 +1,5 @@
 class Customers::AppointmentsController < Customers::BaseController
-  before_action :set_appointment, only: [:show, :destroy]
+  before_action :set_appointment, only: [ :show, :destroy ]
 
   def index
     @appointments = current_user.appointments

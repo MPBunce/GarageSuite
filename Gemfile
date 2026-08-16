@@ -43,7 +43,7 @@ gem "bootsnap", require: false
 gem "thruster", require: false
 
 # Sitemap generator for google search
-gem 'sitemap_generator'
+gem "sitemap_generator"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"

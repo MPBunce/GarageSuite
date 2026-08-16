@@ -5,20 +5,20 @@ Rails.application.routes.draw do
   }
 
   constraints lambda { |req| req.host == AppSetting.value("root_url") } do
-    match '(*any)', to: redirect { |params, req| "https://www.#{AppSetting.value("root_url")}#{req.path}" }, via: :all
+    match "(*any)", to: redirect { |params, req| "https://www.#{AppSetting.value("root_url")}#{req.path}" }, via: :all
   end
 
-  #robots.txt routes
-  get '/robots.txt', to: 'pages#robots'
+  # robots.txt routes
+  get "/robots.txt", to: "pages#robots"
 
-  #Sitemap Refresh
+  # Sitemap Refresh
   namespace :admin do
-    post 'sitemap/rebuild', to: 'sitemaps#rebuild'
+    post "sitemap/rebuild", to: "sitemaps#rebuild"
   end
-  
+
   # Public
   root "pages#home"
-  get "/up", to: proc { [200, {}, ["OK"]] }
+  get "/up", to: proc { [ 200, {}, [ "OK" ] ] }
 
   # Public booking flow
   get  "/booking",         to: "booking#index",   as: :booking
@@ -46,9 +46,9 @@ Rails.application.routes.draw do
   # Admin routes
   namespace :admin do
     get "/dashboard", to: "dashboard#index"
-    resources :appointments, only: [:index, :show, :update, :destroy]
+    resources :appointments, only: [ :index, :show, :update, :destroy ]
     resources :services
-    resource :settings, only: [:show, :update]
-    resources :users, only: [:index, :show, :update, :destroy]
+    resource :settings, only: [ :show, :update ]
+    resources :users, only: [ :index, :show, :update, :destroy ]
   end
 end

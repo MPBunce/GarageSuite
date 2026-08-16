@@ -1,5 +1,4 @@
 class Users::RegistrationsController < Devise::RegistrationsController
-
   private
 
   # Override to permit our custom fields (first_name, last_name etc.)
