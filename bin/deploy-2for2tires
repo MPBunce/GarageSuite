@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+	printf 'Usage: %s LIGHTSAIL_STATIC_IP\n' "$0"
+	printf '   or: LIGHTSAIL_STATIC_IP=address %s\n' "$0"
+	exit 0
+fi
+
+host="${1:-${LIGHTSAIL_STATIC_IP:-}}"
+[[ -n "$host" ]] || {
+	printf 'Usage: %s LIGHTSAIL_STATIC_IP\n' "$0" >&2
+	exit 1
+}
+ssh_user="${LIGHTSAIL_SSH_USER:-ec2-user}"
+ssh_key="${LIGHTSAIL_SSH_KEY:-$HOME/.ssh/lightsail-2for2tires.pem}"
+secrets_file="${DEPLOY_SECRETS_FILE:-.kamal/secrets.2for2tires}"
+container_name="2for2tires"
+proxy_name="2for2tires-caddy"
+network_name="2for2tires-network"
+image="2for2tires:${DEPLOY_TAG:-$(git rev-parse --short HEAD)}"
+remote_env_file="/tmp/${container_name}.env"
+remote_caddyfile="/tmp/${proxy_name}.Caddyfile"
+
+[[ -f "$secrets_file" ]] || {
+	printf 'Missing %s. Create it and add RAILS_MASTER_KEY, DATABASE_URL, and FORCE_SSL.\n' "$secrets_file" >&2
+	exit 1
+}
+
+command -v docker >/dev/null || {
+	printf 'Docker is required locally. Install Docker Desktop first.\n' >&2
+	exit 1
+}
+
+[[ -f "$ssh_key" ]] || {
+	printf 'Missing SSH key: %s\n' "$ssh_key" >&2
+	exit 1
+}
+
+[[ -f "config/2for2tires.Caddyfile" ]] || {
+	printf 'Missing config/2for2tires.Caddyfile\n' >&2
+	exit 1
+}
+
+docker build --platform linux/amd64 --tag "$image" .
+docker save "$image" | gzip | ssh -i "$ssh_key" "${ssh_user}@${host}" 'gunzip | docker load'
+scp -i "$ssh_key" "$secrets_file" "${ssh_user}@${host}:${remote_env_file}"
+scp -i "$ssh_key" config/2for2tires.Caddyfile "${ssh_user}@${host}:${remote_caddyfile}"
+
+ssh -i "$ssh_key" "${ssh_user}@${host}" \
+	"docker network create ${network_name} >/dev/null 2>&1 || true; \
+	 docker rm --force ${container_name} >/dev/null 2>&1 || true; \
+	 docker run --detach --name ${container_name} --restart unless-stopped \
+		 --network ${network_name} --volume ${container_name}_storage:/rails/storage \
+		 --env-file ${remote_env_file} ${image}; \
+	 docker pull caddy:2-alpine; \
+	 docker rm --force ${proxy_name} >/dev/null 2>&1 || true; \
+	 docker run --detach --name ${proxy_name} --restart unless-stopped --network ${network_name} \
+		 --publish 80:80 --publish 443:443 \
+		 --volume ${remote_caddyfile}:/etc/caddy/Caddyfile:ro \
+		 --volume ${proxy_name}_data:/data --volume ${proxy_name}_config:/config \
+		 caddy:2-alpine; \
+	 rm -f ${remote_env_file} ${remote_caddyfile}"
