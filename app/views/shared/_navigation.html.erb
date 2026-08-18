@@ -36,6 +36,9 @@
               <%= current_user.admin? ? "Admin" : "Customer" %>
             </span>
           </span>
+          <%= link_to "Edit Profile",
+                edit_user_registration_path,
+                class: nav_link_classes(active: nav_section_active?("devise/registrations")) %>
           <%= button_to "Sign Out",
                 destroy_user_session_path,
                 method: :delete,
