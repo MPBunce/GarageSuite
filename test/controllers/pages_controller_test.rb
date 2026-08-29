@@ -14,6 +14,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, 'href="https://www.instagram.com/autoenterprise"'
     assert_includes response.body, 'href="https://x.com/autoenterprise"'
     assert_includes response.body, 'href="https://www.tiktok.com/@autoenterprise"'
-    assert_equal 3, response.body.scan('>@autoenterprise</span>').count
+    assert_equal 3, response.body.scan(">@autoenterprise</span>").count
   end
 end
