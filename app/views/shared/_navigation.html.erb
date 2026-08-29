@@ -36,9 +36,15 @@
               <%= current_user.admin? ? "Admin" : "Customer" %>
             </span>
           </span>
-          <%= link_to "Edit Profile",
-                edit_user_registration_path,
-                class: nav_link_classes(active: nav_section_active?("devise/registrations")) %>
+          <%= link_to edit_user_registration_path,
+                class: "inline-flex items-center justify-center rounded-full p-2 text-gray-200 transition hover:text-orange-400 #{'text-orange-400' if nav_section_active?("devise/registrations")}",
+                title: "Edit Profile",
+                aria: { label: "Edit Profile" } do %>
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M16 19v-1a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v1" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="10" cy="7" r="3.5"/>
+            </svg>
+          <% end %>
           <%= button_to "Sign Out",
                 destroy_user_session_path,
                 method: :delete,
