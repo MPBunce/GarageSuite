@@ -8,6 +8,9 @@ class AppSettingTest < ActiveSupport::TestCase
     assert_equal "Professional automotive services. Book your appointment online and let our team take care of the rest.", AppSetting.value(:homepage_description)
     assert_equal "(555) 123-4567", AppSetting.value(:contact_phone)
     assert_equal "service@autoenterprise.com", AppSetting.value(:contact_email)
+    assert_equal "", AppSetting.value(:instagram_username)
+    assert_equal "", AppSetting.value(:x_username)
+    assert_equal "", AppSetting.value(:tiktok_username)
   end
 
   test "updates mixed settings in bulk" do
@@ -17,7 +20,10 @@ class AppSettingTest < ActiveSupport::TestCase
       "site_name" => "Auto Enterprise Pro",
       "homepage_description" => "Premium auto care for every vehicle.",
       "contact_phone" => "(555) 765-4321",
-      "contact_email" => "help@autoenterprise.com"
+      "contact_email" => "help@autoenterprise.com",
+      "instagram_username" => "autoenterprise",
+      "x_username" => "autoenterprise",
+      "tiktok_username" => "autoenterprise"
     )
 
     assert_not AppSetting.enabled?(:public_booking_enabled)
@@ -26,5 +32,8 @@ class AppSettingTest < ActiveSupport::TestCase
     assert_equal "Premium auto care for every vehicle.", AppSetting.value(:homepage_description)
     assert_equal "(555) 765-4321", AppSetting.value(:contact_phone)
     assert_equal "help@autoenterprise.com", AppSetting.value(:contact_email)
+    assert_equal "autoenterprise", AppSetting.value(:instagram_username)
+    assert_equal "autoenterprise", AppSetting.value(:x_username)
+    assert_equal "autoenterprise", AppSetting.value(:tiktok_username)
   end
 end

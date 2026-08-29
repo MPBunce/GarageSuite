@@ -30,6 +30,27 @@ class AppSetting < ApplicationRecord
         default: "service@autoenterprise.com"
       },
       {
+        key: "instagram_username",
+        label: "Instagram username",
+        description: "Displayed in the public contact section when provided.",
+        type: :string,
+        default: ""
+      },
+      {
+        key: "x_username",
+        label: "X username",
+        description: "Displayed in the public contact section when provided.",
+        type: :string,
+        default: ""
+      },
+      {
+        key: "tiktok_username",
+        label: "TikTok username",
+        description: "Displayed in the public contact section when provided.",
+        type: :string,
+        default: ""
+      },
+      {
         key: "root_url",
         label: "Root URL",
         description: "The root domain used for www redirect (e.g. example.ca).",
