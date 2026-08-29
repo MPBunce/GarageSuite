@@ -1,3 +1,0 @@
-2for2tires.ca, www.2for2tires.ca {
-	reverse_proxy 2for2tires:3000
-}

@@ -36,6 +36,7 @@
 # Deployment secrets.
 /.kamal/secrets
 /.kamal/secrets.2for2tires
+/deployments/2for2tires/secrets.2for2tires
 
 /app/assets/builds/*
 !/app/assets/builds/.keep

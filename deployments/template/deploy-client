@@ -2,28 +2,33 @@
 set -euo pipefail
 
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-	printf 'Usage: %s LIGHTSAIL_STATIC_IP\n' "$0"
-	printf '   or: LIGHTSAIL_STATIC_IP=address %s\n' "$0"
+	printf 'Usage: CLIENT_SLUG=name %s LIGHTSAIL_STATIC_IP\n' "$0"
+	printf '   or: CLIENT_SLUG=name LIGHTSAIL_STATIC_IP=address %s\n' "$0"
 	exit 0
 fi
 
+client_slug="${CLIENT_SLUG:?Set CLIENT_SLUG to a lowercase, hyphenated customer name.}"
 host="${1:-${LIGHTSAIL_STATIC_IP:-}}"
 [[ -n "$host" ]] || {
-	printf 'Usage: %s LIGHTSAIL_STATIC_IP\n' "$0" >&2
+	printf 'Usage: CLIENT_SLUG=name %s LIGHTSAIL_STATIC_IP\n' "$0" >&2
 	exit 1
 }
+
 ssh_user="${LIGHTSAIL_SSH_USER:-ec2-user}"
-ssh_key="${LIGHTSAIL_SSH_KEY:-$HOME/.ssh/lightsail-2for2tires.pem}"
-secrets_file="${DEPLOY_SECRETS_FILE:-.kamal/secrets.2for2tires}"
-container_name="2for2tires"
-proxy_name="2for2tires-caddy"
-network_name="2for2tires-network"
-image="2for2tires:${DEPLOY_TAG:-$(git rev-parse --short HEAD)}"
+ssh_key="${LIGHTSAIL_SSH_KEY:-$HOME/.ssh/lightsail-${client_slug}.pem}"
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd -- "$script_dir/../.." && pwd)"
+secrets_file="${DEPLOY_SECRETS_FILE:-$script_dir/secrets.${client_slug}}"
+caddyfile="${CADDYFILE:-config/${client_slug}.Caddyfile}"
+container_name="$client_slug"
+proxy_name="${client_slug}-caddy"
+network_name="${client_slug}-network"
+image="${client_slug}:${DEPLOY_TAG:-$(git -C "$repo_root" rev-parse --short HEAD)}"
 remote_env_file="/tmp/${container_name}.env"
 remote_caddyfile="/tmp/${proxy_name}.Caddyfile"
 
 [[ -f "$secrets_file" ]] || {
-	printf 'Missing %s. Create it and add RAILS_MASTER_KEY, DATABASE_URL, and FORCE_SSL.\n' "$secrets_file" >&2
+	printf 'Missing %s. Create it with RAILS_MASTER_KEY, DATABASE_URL, and FORCE_SSL.\n' "$secrets_file" >&2
 	exit 1
 }
 
@@ -37,15 +42,16 @@ command -v docker >/dev/null || {
 	exit 1
 }
 
-[[ -f "config/2for2tires.Caddyfile" ]] || {
-	printf 'Missing config/2for2tires.Caddyfile\n' >&2
+cd "$repo_root"
+[[ -f "$caddyfile" ]] || {
+	printf 'Missing %s\n' "$caddyfile" >&2
 	exit 1
 }
 
 docker build --platform linux/amd64 --tag "$image" .
 docker save "$image" | gzip | ssh -i "$ssh_key" "${ssh_user}@${host}" 'gunzip | docker load'
 scp -i "$ssh_key" "$secrets_file" "${ssh_user}@${host}:${remote_env_file}"
-scp -i "$ssh_key" config/2for2tires.Caddyfile "${ssh_user}@${host}:${remote_caddyfile}"
+scp -i "$ssh_key" "$caddyfile" "${ssh_user}@${host}:${remote_caddyfile}"
 
 ssh -i "$ssh_key" "${ssh_user}@${host}" \
 	"docker network create ${network_name} >/dev/null 2>&1 || true; \
