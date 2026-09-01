@@ -21,7 +21,11 @@ class BookingController < ApplicationController
     when "vehicle"
       @vehicles = current_user.vehicles.active if user_signed_in?
     when "datetime"
-      # nothing extra needed
+      @service = Service.find_by(id: session.dig(:booking, "service_id"))
+      @min_date = Date.current
+      @max_date = Date.current + AppSetting.value("booking_max_advance_days").to_i.days
+      @selected_date = selected_booking_date
+      @available_slots = Availability::SlotFinder.new(service: @service, date: @selected_date).call
     when "details"
       # nothing extra needed
     end
@@ -105,6 +109,37 @@ class BookingController < ApplicationController
 
   private
 
+  def selected_booking_date
+    requested = safe_parse_date(params[:date]) ||
+                safe_parse_time(session.dig(:booking, "scheduled_at"))&.to_date
+
+    return requested.clamp(@min_date, @max_date) if requested.present?
+
+    first_bookable_date || @min_date
+  end
+
+  def first_bookable_date
+    (@min_date..[ @max_date, @min_date + 14.days ].min).find do |date|
+      Availability::SlotFinder.new(service: @service, date: date).call.any?
+    end
+  end
+
+  def safe_parse_date(value)
+    return nil if value.blank?
+
+    Date.parse(value.to_s)
+  rescue ArgumentError, TypeError
+    nil
+  end
+
+  def safe_parse_time(value)
+    return nil if value.blank?
+
+    Time.zone.parse(value.to_s)
+  rescue ArgumentError, TypeError
+    nil
+  end
+
   def booking_steps
     if AppSetting.enabled?(:public_booking_enabled)
       [ "service", "vehicle", "datetime", "details" ]
@@ -145,12 +180,8 @@ class BookingController < ApplicationController
       time = permitted.delete("scheduled_time")
 
       if date.present? && time.present?
-        begin
-          scheduled_at = Time.zone.parse("#{date} #{time}")
-          permitted["scheduled_at"] = scheduled_at if scheduled_at.present?
-        rescue ArgumentError, TypeError
-          # Keep value unset; the next step can prompt the user again.
-        end
+        scheduled_at = safe_parse_time("#{date} #{time}")
+        permitted["scheduled_at"] = scheduled_at if scheduled_at.present?
       end
 
       permitted

@@ -23,6 +23,7 @@ class Appointment < ApplicationRecord
   # Validations — guest vs logged in
   validate :must_have_customer_or_guest_details
   validate :must_have_vehicle_or_guest_vehicle
+  validate :slot_must_have_capacity, if: :occupies_a_slot?
 
   # Guest token for lookup without account
   before_create :generate_guest_token, if: :guest?
@@ -34,6 +35,7 @@ class Appointment < ApplicationRecord
   scope :cancelled, -> { where(status: :cancelled) }
   scope :upcoming,  -> { where("scheduled_at > ?", Time.current).order(:scheduled_at) }
   scope :guests,    -> { where(customer_id: nil) }
+  scope :blocking,  -> { where(status: [ :pending, :confirmed ]).where.not(scheduled_at: nil) }
 
   # Status transitions
   def confirm!(admin)
@@ -78,7 +80,32 @@ class Appointment < ApplicationRecord
     update!(customer: user)
   end
 
+  def ends_at
+    return nil if scheduled_at.blank? || service.blank?
+
+    scheduled_at + service.duration_minutes.minutes
+  end
+
   private
+
+  def occupies_a_slot?
+    scheduled_at.present? && service.present? && !cancelled? && !completed?
+  end
+
+  def slot_must_have_capacity
+    capacity = [ AppSetting.value("booking_capacity").to_i, 1 ].max
+    finish = ends_at
+
+    overlapping = Appointment.blocking
+                             .includes(:service)
+                             .where.not(id: id)
+                             .where(scheduled_at: (scheduled_at - 1.day)...(finish + 1.day))
+                             .count { |other| other.scheduled_at < finish && other.ends_at > scheduled_at }
+
+    return if overlapping < capacity
+
+    errors.add(:scheduled_at, "is already fully booked — please choose another time")
+  end
 
   def must_have_customer_or_guest_details
     if customer_id.blank?

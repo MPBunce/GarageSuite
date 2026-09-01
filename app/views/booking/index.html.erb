@@ -163,60 +163,80 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-2">Choose Date & Time</h2>
       <p class="text-gray-500 text-sm mb-6">
-        Pick your preferred appointment date and time.
+        Pick a date to see the appointment times we have open.
       </p>
 
-      <%= form_tag booking_update_path, method: :post do %>
+      <%= form_tag booking_path, method: :get, class: "mb-6" do %>
         <input type="hidden" name="step" value="datetime">
-
-        <% scheduled_at_value = session.dig(:booking, "scheduled_at") %>
-        <% parsed_scheduled_at = begin
-             Time.zone.parse(scheduled_at_value.to_s) if scheduled_at_value.present?
-           rescue ArgumentError, TypeError
-             nil
-           end %>
-        <% scheduled_date_value = parsed_scheduled_at&.strftime("%Y-%m-%d") %>
-        <% scheduled_time_value = parsed_scheduled_at&.strftime("%H:%M") %>
-
-        <div class="grid grid-cols-2 gap-4 mb-5">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Preferred Date
-            </label>
-            <input type="date" name="scheduled_date"
-              value="<%= scheduled_date_value %>"
-              required
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-orange-500">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Preferred Time
-            </label>
-            <input type="time" name="scheduled_time"
-              value="<%= scheduled_time_value %>"
-              required
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-orange-500">
-          </div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+        <div class="flex gap-3">
+          <input type="date" name="date"
+            value="<%= @selected_date.to_fs(:iso8601) %>"
+            min="<%= @min_date.to_fs(:iso8601) %>"
+            max="<%= @max_date.to_fs(:iso8601) %>"
+            class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                   focus:outline-none focus:ring-2 focus:ring-orange-500">
+          <%= submit_tag "Show times",
+                class: "shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold
+                        px-4 py-2.5 rounded-lg text-sm transition cursor-pointer" %>
         </div>
+        <p class="text-xs text-gray-400 mt-2">
+          <%= @selected_date.strftime("%A") %> hours: <%= BusinessHours.display_for(@selected_date) %>
+        </p>
+      <% end %>
 
-        <div class="mb-8">
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Notes <span class="text-gray-400 font-normal">(optional)</span>
-          </label>
-          <textarea name="customer_notes" rows="3"
-            placeholder="Any specific concerns or requests..."
-            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
-                   focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none">
-<%= session.dig(:booking, "customer_notes") %>
-          </textarea>
+      <% if @available_slots.blank? %>
+        <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-6 text-center">
+          <p class="text-sm font-medium text-gray-700">No times available on this date</p>
+          <p class="text-xs text-gray-500 mt-1">Try another day, or contact us to arrange a time.</p>
         </div>
+      <% else %>
+        <%= form_tag booking_update_path, method: :post do %>
+          <input type="hidden" name="step" value="datetime">
+          <input type="hidden" name="scheduled_date" value="<%= @selected_date.to_fs(:iso8601) %>">
 
-        <%= submit_tag "Continue →",
-              class: "w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300
-                      disabled:cursor-not-allowed text-white font-semibold
-                      py-3 px-4 rounded-lg transition cursor-pointer" %>
+          <% selected_time = begin
+               parsed = Time.zone.parse(session.dig(:booking, "scheduled_at").to_s)
+               parsed&.to_date == @selected_date ? parsed.strftime("%H:%M") : nil
+             rescue ArgumentError, TypeError
+               nil
+             end %>
+
+          <fieldset class="mb-8">
+            <legend class="block text-sm font-medium text-gray-700 mb-2">Available times</legend>
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              <% @available_slots.each do |slot| %>
+                <% value = slot.strftime("%H:%M") %>
+                <label class="cursor-pointer">
+                  <input type="radio" name="scheduled_time" value="<%= value %>"
+                    class="peer sr-only" required
+                    <%= "checked" if selected_time == value %>>
+                  <span class="block rounded-lg border border-gray-300 px-3 py-2 text-center text-sm
+                               transition hover:border-orange-400
+                               peer-checked:border-orange-600 peer-checked:bg-orange-50
+                               peer-checked:font-semibold peer-checked:text-orange-700">
+                    <%= slot.strftime("%-l:%M %p") %>
+                  </span>
+                </label>
+              <% end %>
+            </div>
+          </fieldset>
+
+          <div class="mb-8">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Notes <span class="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <textarea name="customer_notes" rows="3"
+              placeholder="Any specific concerns or requests..."
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                     focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"><%= session.dig(:booking, "customer_notes") %></textarea>
+          </div>
+
+          <%= submit_tag "Continue →",
+                class: "w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300
+                        disabled:cursor-not-allowed text-white font-semibold
+                        py-3 px-4 rounded-lg transition cursor-pointer" %>
+        <% end %>
       <% end %>
     </div>
 

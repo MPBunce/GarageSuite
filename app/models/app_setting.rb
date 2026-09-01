@@ -72,9 +72,54 @@ class AppSetting < ApplicationRecord
         description: "Show a warning banner in dashboard when pending appointments meet this value.",
         type: :integer,
         default: 10
+      },
+      {
+        key: "booking_capacity",
+        label: "Concurrent capacity",
+        description: "How many appointments can run at the same time (service bays or technicians).",
+        type: :integer,
+        default: 1
+      },
+      {
+        key: "booking_slot_interval_minutes",
+        label: "Slot interval (minutes)",
+        description: "Spacing between the appointment start times offered to customers.",
+        type: :integer,
+        default: 30
+      },
+      {
+        key: "booking_min_notice_hours",
+        label: "Minimum notice (hours)",
+        description: "How far ahead a customer must book. Slots sooner than this are hidden.",
+        type: :integer,
+        default: 2
+      },
+      {
+        key: "booking_max_advance_days",
+        label: "Booking window (days)",
+        description: "How many days into the future customers may book.",
+        type: :integer,
+        default: 60
       }
-    ]
+    ],
+    "Business Hours" => [
+      { key: "hours_monday",    label: "Monday",    default: "08:00-17:00" },
+      { key: "hours_tuesday",   label: "Tuesday",   default: "08:00-17:00" },
+      { key: "hours_wednesday", label: "Wednesday", default: "08:00-17:00" },
+      { key: "hours_thursday",  label: "Thursday",  default: "08:00-17:00" },
+      { key: "hours_friday",    label: "Friday",    default: "08:00-17:00" },
+      { key: "hours_saturday",  label: "Saturday",  default: "09:00-14:00" },
+      { key: "hours_sunday",    label: "Sunday",    default: "" }
+    ].map do |definition|
+      definition.merge(
+        description: "Opening hours as 24h range, e.g. 08:00-17:00. Leave blank when closed.",
+        type: :string,
+        format: :time_range
+      )
+    end
   }.freeze
+
+  TIME_RANGE_FORMAT = /\A([01]\d|2[0-3]):[0-5]\d-([01]\d|2[0-3]):[0-5]\d\z/
 
   DEFINITIONS = DEFINITION_GROUPS.values.flatten.index_by { |definition| definition[:key] }.freeze
 
@@ -83,6 +128,7 @@ class AppSetting < ApplicationRecord
                   inclusion: { in: DEFINITIONS.keys }
   validates :value_type, inclusion: { in: %w[boolean integer string] }
   validate :value_matches_type
+  validate :value_matches_format
 
   scope :ordered, -> { order(:key) }
 
@@ -188,5 +234,19 @@ class AppSetting < ApplicationRecord
     when "string"
       errors.add(:value_string, "must be present") if value_string.nil?
     end
+  end
+
+  def value_matches_format
+    definition = DEFINITIONS[key.to_s]
+    return if definition.nil? || definition[:format] != :time_range
+    return if value_string.blank?
+
+    unless value_string.match?(TIME_RANGE_FORMAT)
+      errors.add(:value_string, "must be blank when closed, or a 24h range like 08:00-17:00")
+      return
+    end
+
+    opens, closes = value_string.split("-")
+    errors.add(:value_string, "closing time must be after opening time") if closes <= opens
   end
 end

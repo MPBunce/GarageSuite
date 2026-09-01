@@ -7,6 +7,9 @@ class Admin::SettingsController < Admin::BaseController
   def update
     AppSetting.update_settings!(settings_params)
     redirect_to admin_settings_path, notice: "Settings updated."
+  rescue ActiveRecord::RecordInvalid => error
+    redirect_to admin_settings_path,
+                alert: "Settings not saved — #{error.record.key}: #{error.record.errors.full_messages.to_sentence}."
   end
 
   private
