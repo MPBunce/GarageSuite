@@ -10,7 +10,7 @@ admin_role = Role.find_or_create_by!(name: Role::ADMIN) do |r|
 end
 
 # Create a default admin user
-admin = User.find_or_create_by!(email: "aems_admin@gmail.com") do |u|
+admin = User.find_or_create_by!(email: "admin@gmail.com") do |u|
   u.first_name = "Admin"
   u.last_name  = "User"
   u.password   = "astonmartin123!"
@@ -19,8 +19,30 @@ end
 
 admin.assign_role(Role::ADMIN)
 
+system = User.find_or_create_by!(email: "system@gmail.com") do |u|
+  u.first_name = "System"
+  u.last_name = "Account"
+  u.password = SecureRandom.base64(48)
+  u.active = false
+  u.account_type = :system
+end
+system.update!(account_type: :system, active: false) unless system.system?
+
 puts "✅ Roles created: #{Role.pluck(:name).join(', ')}"
 puts "✅ Admin user created: #{admin.email}"
+puts "✅ System account created: #{system.email}"
+
+if ENV["SUPPORT_ADMIN_EMAIL"].present? && ENV["SUPPORT_ADMIN_PASSWORD"].present?
+  support_admin = User.find_or_create_by!(email: ENV.fetch("SUPPORT_ADMIN_EMAIL")) do |u|
+    u.first_name = "Support"
+    u.last_name = "Admin"
+    u.password = ENV.fetch("SUPPORT_ADMIN_PASSWORD")
+    u.active = true
+    u.account_type = :support_admin
+  end
+  support_admin.update!(account_type: :support_admin, active: true)
+  puts "✅ Support Admin created: #{support_admin.email}"
+end
 
 # Services
 oil_change = Service.find_or_create_by!(name: "Oil Change") do |s|

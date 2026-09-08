@@ -115,12 +115,24 @@ class UserTest < ActiveSupport::TestCase
       guest_email: "guest@example.com",
       guest_vehicle_make: "Honda",
       guest_vehicle_model: "Civic",
-      guest_vehicle_year: 2020,
-      guest_vehicle_license: "NULL-1"
+      guest_vehicle_year: 2020
     )
 
     admin.destroy
 
     assert_nil appointment.reload.assigned_admin_id
+  end
+
+  test "system accounts cannot authenticate" do
+    system_user = create_user(account_type: :system, active: false)
+
+    assert_not system_user.active_for_authentication?
+  end
+
+  test "support admins have admin panel access without full admin permissions" do
+    support_user = create_user(account_type: :support_admin)
+
+    assert support_user.admin_access?
+    assert_not support_user.admin?
   end
 end

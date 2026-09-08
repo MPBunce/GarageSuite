@@ -1,5 +1,6 @@
 class Admin::UsersController < Admin::BaseController
   before_action :set_user, only: [ :show, :update, :destroy ]
+  before_action :require_full_admin!, only: [ :update, :destroy ]
 
   def index
     @users = User.includes(:roles).order(:last_name)

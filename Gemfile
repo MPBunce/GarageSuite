@@ -18,6 +18,7 @@ gem "stimulus-rails"
 gem "tailwindcss-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
+gem "aws-sdk-sqs", "~> 1.0"
 
 # -- Authentication
 gem "devise", "~> 4.9"

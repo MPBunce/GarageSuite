@@ -1,4 +1,6 @@
 class Vehicle < ApplicationRecord
+  include Auditable
+
   belongs_to :user
 
   has_many :appointments, dependent: :restrict_with_error
@@ -11,7 +13,6 @@ class Vehicle < ApplicationRecord
                               greater_than: 1900,
                               less_than_or_equal_to: Date.current.year + 1
                             }
-  validates :license_plate, presence: true, uniqueness: true
   validates :vin,           uniqueness: true, allow_blank: true
 
   scope :active, -> { where(active: true) }

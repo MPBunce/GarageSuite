@@ -40,7 +40,6 @@ class Customers::VehiclesController < Customers::BaseController
       :make,
       :model,
       :year,
-      :license_plate,
       :vin
     )
   end

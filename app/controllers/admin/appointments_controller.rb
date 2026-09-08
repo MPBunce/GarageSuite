@@ -1,5 +1,6 @@
 class Admin::AppointmentsController < Admin::BaseController
   before_action :set_appointment, only: [ :show, :update, :destroy ]
+  before_action :require_full_admin!, only: [ :update, :destroy ]
 
   def index
     @appointments = Appointment.all

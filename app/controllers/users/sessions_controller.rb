@@ -3,7 +3,7 @@ class Users::SessionsController < Devise::SessionsController
 
   # Override where Devise redirects after login
   def after_sign_in_path_for(resource)
-    if current_user.admin?
+    if current_user.admin_access?
       admin_dashboard_path
     else
       customer_dashboard_path

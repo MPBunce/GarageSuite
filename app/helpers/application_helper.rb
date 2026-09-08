@@ -6,7 +6,7 @@ module ApplicationHelper
   }.freeze
 
   def site_name
-    AppSetting.value(:site_name).presence || "Auto Enterprise"
+    AppSetting.value(:site_name).presence || "GarageSuite"
   end
 
   def social_profile_url(platform, username)

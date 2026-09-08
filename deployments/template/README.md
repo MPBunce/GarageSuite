@@ -17,6 +17,9 @@ DATABASE_URL=your-managed-database-url
 FORCE_SSL=true
 ```
 
+Set `DATABASE_URL` to a managed database dedicated to that customer. Do not
+reuse another customer's database URL.
+
 Add `/deployments/CLIENT_SLUG/secrets.CLIENT_SLUG` to `.gitignore`.
 
 Create `config/CLIENT_SLUG.Caddyfile` with the customer's real domain and the

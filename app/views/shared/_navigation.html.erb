@@ -11,12 +11,14 @@
         <%# Navigation links — only show when logged in %>
         <% if user_signed_in? %>
           <div class="hidden md:flex items-center gap-2 lg:gap-4">
-            <% if current_user.admin? %>
+            <% if current_user.admin_access? %>
               <%= link_to "Dashboard",    admin_dashboard_path,     class: nav_link_classes(active: nav_section_active?("admin/dashboard")) %>
               <%= link_to "Appointments", admin_appointments_path,  class: nav_link_classes(active: nav_section_active?("admin/appointments")) %>
               <%= link_to "Services",     admin_services_path,      class: nav_link_classes(active: nav_section_active?("admin/services")) %>
               <%= link_to "Users",        admin_users_path,         class: nav_link_classes(active: nav_section_active?("admin/users")) %>
-              <%= link_to "Settings",     admin_settings_path,      class: nav_link_classes(active: nav_section_active?("admin/settings")) %>
+              <% if current_user.admin? %>
+                <%= link_to "Settings", admin_settings_path, class: nav_link_classes(active: nav_section_active?("admin/settings")) %>
+              <% end %>
             <% else %>
               <%= link_to "Dashboard",    customer_dashboard_path,      class: nav_link_classes(active: nav_section_active?("customers/dashboard")) %>
               <%= link_to "Appointments", customer_appointments_path,   class: nav_link_classes(active: nav_section_active?("customers/appointments")) %>
@@ -32,8 +34,8 @@
           <span class="inline-flex items-center gap-2 text-sm text-gray-300">
             <%= current_user.full_name %>
             <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-medium
-              <%= current_user.admin? ? 'bg-orange-600' : 'bg-green-600' %>">
-              <%= current_user.admin? ? "Admin" : "Customer" %>
+              <%= current_user.admin_access? ? 'bg-orange-600' : 'bg-green-600' %>">
+              <%= current_user.admin? ? "Admin" : (current_user.support_admin? ? "Support Admin" : "Customer") %>
             </span>
           </span>
           <%= link_to edit_user_registration_path,

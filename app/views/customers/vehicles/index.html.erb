@@ -19,9 +19,6 @@
               <h3 class="font-semibold text-gray-900 text-lg">
                 <%= vehicle.display_name %>
               </h3>
-              <p class="text-sm text-gray-500">
-                🔖 <%= vehicle.license_plate %>
-              </p>
               <% if vehicle.vin.present? %>
                 <p class="text-xs text-gray-400 mt-1">
                   VIN: <%= vehicle.vin %>

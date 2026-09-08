@@ -170,8 +170,7 @@ class BookingController < ApplicationController
         :vehicle_id,
         :guest_vehicle_make,
         :guest_vehicle_model,
-        :guest_vehicle_year,
-        :guest_vehicle_license
+        :guest_vehicle_year
       ).to_h
 
     when "datetime"
@@ -224,7 +223,6 @@ class BookingController < ApplicationController
       appointment.guest_vehicle_make    = booking["guest_vehicle_make"]
       appointment.guest_vehicle_model   = booking["guest_vehicle_model"]
       appointment.guest_vehicle_year    = booking["guest_vehicle_year"]
-      appointment.guest_vehicle_license = booking["guest_vehicle_license"]
     end
 
     appointment
@@ -254,15 +252,13 @@ class BookingController < ApplicationController
   def create_vehicle_for_user(user, booking)
     return nil if booking["guest_vehicle_make"].blank?    ||
                   booking["guest_vehicle_model"].blank?   ||
-                  booking["guest_vehicle_year"].blank?    ||
-                  booking["guest_vehicle_license"].blank?
+                  booking["guest_vehicle_year"].blank?
 
     vehicle = Vehicle.new(
       user:          user,
       make:          booking["guest_vehicle_make"],
       model:         booking["guest_vehicle_model"],
       year:          booking["guest_vehicle_year"].to_i,
-      license_plate: booking["guest_vehicle_license"],
       active:        true
     )
 

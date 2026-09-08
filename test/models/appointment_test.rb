@@ -66,8 +66,7 @@ class AppointmentTest < ActiveSupport::TestCase
       guest_email: "guest@example.com",
       guest_vehicle_make: "Honda",
       guest_vehicle_model: "Civic",
-      guest_vehicle_year: 2020,
-      guest_vehicle_license: "ABC123"
+      guest_vehicle_year: 2020
     )
   end
 

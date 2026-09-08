@@ -51,4 +51,8 @@ Rails.application.routes.draw do
     resource :settings, only: [ :show, :update ]
     resources :users, only: [ :index, :show, :update, :destroy ]
   end
+
+  namespace :api, defaults: { format: :json } do
+    resources :emails, only: :create
+  end
 end

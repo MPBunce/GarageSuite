@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_23_184534) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,7 +42,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_23_184534) do
     t.string "guest_vehicle_make"
     t.string "guest_vehicle_model"
     t.integer "guest_vehicle_year"
-    t.string "guest_vehicle_license"
     t.string "guest_token"
     t.index ["assigned_admin_id"], name: "index_appointments_on_assigned_admin_id"
     t.index ["customer_id"], name: "index_appointments_on_customer_id"
@@ -52,6 +51,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_23_184534) do
     t.index ["service_id"], name: "index_appointments_on_service_id"
     t.index ["status"], name: "index_appointments_on_status"
     t.index ["vehicle_id"], name: "index_appointments_on_vehicle_id"
+  end
+
+  create_table "audit_logs", force: :cascade do |t|
+    t.bigint "actor_id"
+    t.string "auditable_type", null: false
+    t.bigint "auditable_id", null: false
+    t.string "action", null: false
+    t.jsonb "changeset", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_audit_logs_on_actor_id"
+    t.index ["auditable_type", "auditable_id", "created_at"], name: "idx_on_auditable_type_auditable_id_created_at_32105c5b9d"
+    t.index ["auditable_type", "auditable_id"], name: "index_audit_logs_on_auditable"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -194,6 +205,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_23_184534) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "tenants", force: :cascade do |t|
+    t.string "domain", null: false
+    t.string "display_name"
+    t.string "reply_to"
+    t.string "logo_url"
+    t.string "brand_color"
+    t.string "api_key", null: false
+    t.string "verified_sending_domain"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["api_key"], name: "index_tenants_on_api_key", unique: true
+    t.index ["domain"], name: "index_tenants_on_domain", unique: true
+  end
+
   create_table "user_roles", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "role_id", null: false
@@ -216,7 +241,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_23_184534) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "email_valid", default: true, null: false
+    t.string "email_status"
+    t.string "account_type", default: "standard", null: false
+    t.index ["account_type"], name: "index_users_on_account_type"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["email_status"], name: "index_users_on_email_status"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
@@ -225,12 +255,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_23_184534) do
     t.string "make", null: false
     t.string "model", null: false
     t.integer "year", null: false
-    t.string "license_plate", null: false
     t.string "vin"
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["license_plate"], name: "index_vehicles_on_license_plate", unique: true
     t.index ["user_id"], name: "index_vehicles_on_user_id"
     t.index ["vin"], name: "index_vehicles_on_vin", unique: true, where: "(vin IS NOT NULL)"
   end
@@ -239,6 +267,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_23_184534) do
   add_foreign_key "appointments", "users", column: "assigned_admin_id"
   add_foreign_key "appointments", "users", column: "customer_id"
   add_foreign_key "appointments", "vehicles"
+  add_foreign_key "audit_logs", "users", column: "actor_id"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

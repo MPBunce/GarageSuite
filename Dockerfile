@@ -2,8 +2,8 @@
 # check=error=true
 
 # This Dockerfile is designed for production deployment:
-# docker build -t automotive_enterprise_management_system .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name automotive_enterprise_management_system automotive_enterprise_management_system
+# docker build -t garage-suite .
+# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name garage-suite garage-suite
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 

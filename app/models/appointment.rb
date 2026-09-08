@@ -1,4 +1,6 @@
 class Appointment < ApplicationRecord
+  include Auditable
+
   enum :status, {
     pending:   0,
     confirmed: 1,
@@ -119,7 +121,6 @@ class Appointment < ApplicationRecord
       errors.add(:guest_vehicle_make,    "is required") if guest_vehicle_make.blank?
       errors.add(:guest_vehicle_model,   "is required") if guest_vehicle_model.blank?
       errors.add(:guest_vehicle_year,    "is required") if guest_vehicle_year.blank?
-      errors.add(:guest_vehicle_license, "is required") if guest_vehicle_license.blank?
     end
   end
 

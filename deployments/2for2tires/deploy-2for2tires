@@ -26,7 +26,7 @@ remote_env_file="/tmp/${container_name}.env"
 remote_caddyfile="/tmp/${proxy_name}.Caddyfile"
 
 [[ -f "$secrets_file" ]] || {
-	printf 'Missing %s. Create it and add RAILS_MASTER_KEY, DATABASE_URL, and FORCE_SSL.\n' "$secrets_file" >&2
+	printf 'Missing %s. Create it and add RAILS_MASTER_KEY, DATABASE_URL, FORCE_SSL, SES_SMTP_ENDPOINT, and SES_EVENTS_QUEUE_URL.\n' "$secrets_file" >&2
 	exit 1
 }
 

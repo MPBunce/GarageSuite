@@ -1,0 +1,8 @@
+<div style="font-family: sans-serif; color: #1f2937;">
+  <% if @tenant.logo_url.present? %>
+    <img src="<%= @tenant.logo_url %>" alt="<%= @tenant.display_name %>" style="max-height: 48px;">
+  <% else %>
+    <h1 style="color: <%= @tenant.brand_color.presence || '#1f2937' %>;"> <%= @tenant.display_name.presence || @tenant.domain %> </h1>
+  <% end %>
+  <p><%= simple_format(@data.fetch(:message)) %></p>
+</div>

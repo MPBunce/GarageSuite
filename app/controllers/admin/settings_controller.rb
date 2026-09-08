@@ -1,4 +1,6 @@
 class Admin::SettingsController < Admin::BaseController
+  before_action :require_full_admin!
+
   def show
     @setting_groups = AppSetting.definition_groups
     @setting_values = AppSetting.value_map

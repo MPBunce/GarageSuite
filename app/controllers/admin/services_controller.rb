@@ -1,5 +1,6 @@
 class Admin::ServicesController < Admin::BaseController
   before_action :set_service, only: [ :show, :edit, :update, :destroy ]
+  before_action :require_full_admin!, only: [ :new, :create, :edit, :update, :destroy ]
 
   def index
     @services = Service.all.order(:name)
